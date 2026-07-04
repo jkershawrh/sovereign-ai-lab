@@ -19,6 +19,10 @@ spec:
       containers:
         - name: contextforge
           image: ghcr.io/ibm/mcp-context-forge:latest
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
           ports:
             - containerPort: 4444
           env:

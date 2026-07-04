@@ -41,6 +41,17 @@ spec:
               value: "unused"
             - name: ARE_LEDGER_KAFKA_SASL_PASSWORD
               value: "unused"
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+          resources:
+            requests:
+              cpu: 500m
+              memory: 512Mi
+            limits:
+              cpu: "2"
+              memory: 1Gi
           readinessProbe:
             httpGet:
               path: /readyz

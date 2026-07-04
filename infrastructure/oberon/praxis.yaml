@@ -19,6 +19,10 @@ spec:
       containers:
         - name: praxis
           image: ghcr.io/praxis-proxy/praxis:latest
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
           command: ["praxis"]
           args: ["-c", "/config/praxis.yaml"]
           ports:

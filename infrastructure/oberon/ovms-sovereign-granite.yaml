@@ -24,6 +24,10 @@ spec:
       containers:
         - name: ovms
           image: openvino/model_server:latest
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
           args:
             - --model_name
             - granite-3.2-sovereign

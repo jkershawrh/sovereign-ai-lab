@@ -19,6 +19,10 @@ spec:
       containers:
         - name: frontend
           image: quay.io/sovereign-ai-lab/sovereign-frontend:latest
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
           ports:
             - containerPort: 8080
           readinessProbe:

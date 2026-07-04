@@ -2,4 +2,6 @@ FROM python:3.11-slim
 WORKDIR /app
 COPY router.py .
 EXPOSE 8001
+
+USER 1001
 CMD ["python3", "router.py"]

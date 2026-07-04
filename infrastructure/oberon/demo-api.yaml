@@ -40,6 +40,10 @@ spec:
       containers:
         - name: api
           image: quay.io/sovereign-ai-lab/sovereign-demo-api:latest
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
           ports:
             - containerPort: 9099
           env:

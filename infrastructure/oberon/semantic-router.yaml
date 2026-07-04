@@ -19,6 +19,10 @@ spec:
       containers:
         - name: router
           image: quay.io/sovereign-ai-lab/sovereign-semantic-router:latest
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
           ports:
             - containerPort: 8001
           env:
@@ -36,6 +40,13 @@ spec:
               port: 8001
             initialDelaySeconds: 5
             periodSeconds: 10
+          resources:
+            requests:
+              cpu: 250m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 256Mi
 ---
 apiVersion: v1
 kind: Service

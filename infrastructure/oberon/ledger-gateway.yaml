@@ -30,6 +30,17 @@ spec:
               value: "0.0.0.0"
             - name: GATEWAY_CORS_ORIGINS
               value: "http://localhost:9001,http://localhost:9099,http://localhost:5173"
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+          resources:
+            requests:
+              cpu: 250m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
           readinessProbe:
             httpGet:
               path: /api/entries
