@@ -1,0 +1,12 @@
+{
+  "models": {
+    "approved_models": [
+      "granite-3.2-sovereign",
+      "granite-3.2-2b-instruct",
+      "granite-3.2-3b-instruct"
+    ]
+  },
+  "jurisdiction": {
+    "approved_regions": ["local"]
+  }
+}

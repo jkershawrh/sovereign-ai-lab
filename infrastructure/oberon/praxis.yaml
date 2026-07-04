@@ -1,0 +1,61 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: praxis
+  namespace: sovereign-ai-lab
+  labels:
+    app: praxis
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: praxis
+  template:
+    metadata:
+      labels:
+        app: praxis
+    spec:
+      containers:
+        - name: praxis
+          image: ghcr.io/praxis-proxy/praxis:latest
+          command: ["praxis"]
+          args: ["-c", "/config/praxis.yaml"]
+          ports:
+            - containerPort: 9000
+            - containerPort: 9901
+          volumeMounts:
+            - name: config
+              mountPath: /config
+          readinessProbe:
+            tcpSocket:
+              port: 9000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          resources:
+            requests:
+              cpu: "1"
+              memory: 256Mi
+            limits:
+              cpu: "2"
+              memory: 512Mi
+      volumes:
+        - name: config
+          configMap:
+            name: praxis-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: praxis
+  namespace: sovereign-ai-lab
+spec:
+  selector:
+    app: praxis
+  ports:
+    - port: 9000
+      targetPort: 9000
+      name: proxy
+    - port: 9901
+      targetPort: 9901
+      name: admin

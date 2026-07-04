@@ -1,0 +1,77 @@
+= Configure Your Jurisdiction
+:navtitle: Your Jurisdiction
+
+*Time: ~10 minutes* · *Role: Compliance Officer, Solution Architect*
+
+== Learning Objectives
+
+* Explore jurisdiction profiles for EU, Gulf States, and Southeast Asia
+* Understand how compliance requirements map to the sovereignty stack
+* Test jurisdiction-specific policy configurations
+
+== Exercise 1: List available profiles
+
+[source,bash,role="execute",subs=attributes+]
+----
+curl -sf {demo_api_url}/api/profiles | python3 -c "
+import sys, json
+profiles = json.load(sys.stdin)
+for pid, p in profiles.items():
+    print(f'{p[\"flag\"]} {p[\"name\"]:20s} Sectors: {\", \".join(p[\"sectors\"])}')
+"
+----
+
+== Exercise 2: Inspect the EU profile
+
+[source,bash,role="execute",subs=attributes+]
+----
+curl -sf {demo_api_url}/api/profiles/eu | python3 -c "
+import sys, json
+p = json.load(sys.stdin)
+print(f'{p[\"flag\"]} {p[\"name\"]}')
+print(f'Key concern: {p[\"key_concern\"]}')
+print()
+print('Compliance:')
+for l in p['compliance_labels']:
+    print(f'  [{l[\"layer\"]:12s}] {l[\"name\"]:20s} {l[\"description\"]}')
+print()
+print('OPA policies:')
+for pol in p['opa_policies']:
+    print(f'  {pol}')
+print()
+print('AIBOM requirements:')
+for r in p['aibom_requirements']:
+    print(f'  - {r}')
+"
+----
+
+== Exercise 3: Compare with Gulf States
+
+[source,bash,role="execute",subs=attributes+]
+----
+curl -sf {demo_api_url}/api/profiles/gulf | python3 -c "
+import sys, json
+p = json.load(sys.stdin)
+print(f'{p[\"flag\"]} {p[\"name\"]}')
+print(f'Key concern: {p[\"key_concern\"]}')
+print()
+print('Compliance:')
+for l in p['compliance_labels']:
+    print(f'  [{l[\"layer\"]:12s}] {l[\"name\"]:20s} {l[\"description\"]}')
+"
+----
+
+Notice the different compliance frameworks: GDPR vs national data classification, GAIA-X vs data localization.
+
+== Exercise 4: Use the interactive lab
+
+Open the {frontend_url}[Sovereign AI Lab UI^] and navigate to the Lab mode (click through the demo to the end, or directly access the Lab). Select different jurisdictions and run the policy tests and inference exercises interactively.
+
+== Module Summary
+
+* ✓ Explored jurisdiction profiles for 3 regions
+* ✓ Compared compliance requirements across jurisdictions
+* ✓ Understood how the same stack adapts to different sovereignty rules
+
+[.next-nav]
+xref:explore-mcp-tools.adoc[Next: MCP Tool Federation →]

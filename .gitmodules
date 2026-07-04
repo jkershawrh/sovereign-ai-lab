@@ -1,0 +1,9 @@
+[submodule "ledger/are-immutable-ledger"]
+	path = ledger/are-immutable-ledger
+	url = https://github.com/sovereign-ai-lab/are-immutable-ledger
+[submodule "gateway/praxis"]
+	path = gateway/praxis
+	url = https://github.com/praxis-proxy/praxis
+[submodule "gateway/contextforge"]
+	path = gateway/contextforge
+	url = https://github.com/IBM/mcp-context-forge

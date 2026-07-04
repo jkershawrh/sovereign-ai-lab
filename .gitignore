@@ -1,0 +1,46 @@
+# Environment
+.env
+*.env.local
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# Rust
+target/
+
+# Node
+node_modules/
+dist/
+
+# Model artifacts (tracked via Git LFS)
+# inference/models/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Docker
+docker-compose.override.yml
+
+# Pipeline outputs (pre-generated, tracked via LFS)
+# model-lifecycle/ingest/output/
+# model-lifecycle/synth/output/
+# model-lifecycle/train/output/
+
+# TDX runtime artifacts
+infra/tdx/.td-running
+infra/tdx/attestation-report.json
+infra/tdx/attestation-summary.txt
+
+# Leave-behind generated output
+experience/leave-behind/output/

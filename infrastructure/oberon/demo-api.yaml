@@ -1,0 +1,94 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: demo-api
+  namespace: sovereign-ai-lab
+  labels:
+    app: demo-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: demo-api
+  template:
+    metadata:
+      labels:
+        app: demo-api
+    spec:
+      initContainers:
+        - name: setup-workspace
+          image: busybox
+          command: ["sh", "-c"]
+          args:
+            - |
+              mkdir -p /workspace/infra/tdx /workspace/model-lifecycle/aibom /workspace/model-lifecycle/promote /workspace/model-lifecycle/registry /workspace/experience/showroom/profiles
+              cp /artifacts/attestation-report.json /workspace/infra/tdx/
+              cp /artifacts/attestation-summary.txt /workspace/infra/tdx/
+              cp /artifacts/td-config.json /workspace/infra/tdx/
+              cp /artifacts/sovereign-granite-3b.aibom.json /workspace/model-lifecycle/aibom/
+              cp /artifacts/promotion-decision.json /workspace/model-lifecycle/promote/
+              cp /artifacts/registry.json /workspace/model-lifecycle/registry/
+              cp /profiles/* /workspace/experience/showroom/profiles/
+          volumeMounts:
+            - name: artifacts
+              mountPath: /artifacts
+            - name: profiles
+              mountPath: /profiles
+            - name: workspace
+              mountPath: /workspace
+      containers:
+        - name: api
+          image: quay.io/sovereign-ai-lab/sovereign-demo-api:latest
+          ports:
+            - containerPort: 9099
+          env:
+            - name: LEDGER_GATEWAY
+              value: "http://ledger-gateway:28099"
+            - name: OPA_ENDPOINT
+              value: "http://opa:8181"
+            - name: ROUTER_ENDPOINT
+              value: "http://semantic-router:8001"
+            - name: OVMS_ENDPOINT
+              value: "http://ovms-sovereign-granite:8080"
+            - name: MCP_ENDPOINT
+              value: "http://sovereign-data-mcp:8090"
+            - name: WORKSPACE
+              value: /workspace
+          volumeMounts:
+            - name: workspace
+              mountPath: /workspace
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 9099
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          resources:
+            requests:
+              cpu: "500m"
+              memory: 256Mi
+            limits:
+              cpu: "1"
+              memory: 512Mi
+      volumes:
+        - name: artifacts
+          configMap:
+            name: workspace-artifacts
+        - name: profiles
+          configMap:
+            name: jurisdiction-profiles
+        - name: workspace
+          emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: demo-api
+  namespace: sovereign-ai-lab
+spec:
+  selector:
+    app: demo-api
+  ports:
+    - port: 9099
+      targetPort: 9099

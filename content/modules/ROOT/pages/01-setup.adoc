@@ -1,0 +1,76 @@
+= Access Your Environment
+:navtitle: Setup
+
+*Time: ~5 minutes* · *Role: All*
+
+== Learning Objectives
+
+* Verify access to the OpenShift cluster
+* Confirm all sovereign AI lab services are running
+* Understand the service endpoints you will use
+
+== Exercise 1: Log in to OpenShift
+
+[source,bash,role="execute",subs=attributes+]
+----
+oc login {openshift_api_url} -u {user} -p {password}
+----
+
+Verify your namespace:
+
+[source,bash,role="execute",subs=attributes+]
+----
+oc project sovereign-ai-lab
+----
+
+== Exercise 2: Check service health
+
+Verify the core services are running:
+
+[source,bash,role="execute",subs=attributes+]
+----
+echo "=== Ledger ===" && curl -sf {ledger_url}/api/entries | python3 -c "import sys,json; d=json.load(sys.stdin); print(f'{len(d)} entries')"
+echo "=== OPA ===" && curl -sf {opa_url}/health && echo " OK"
+echo "=== Demo API ===" && curl -sf {demo_api_url}/health | python3 -c "import sys,json; print(json.load(sys.stdin))"
+----
+
+Expected: entry count, OPA health OK, demo API status OK.
+
+== Exercise 3: Verify the model is serving
+
+[source,bash,role="execute",subs=attributes+]
+----
+curl -sf {demo_api_url}/api/model/registry | python3 -c "
+import sys, json
+r = json.load(sys.stdin)
+print(f'Model:   {r[\"name\"]}')
+print(f'Version: {r[\"version\"]}')
+print(f'Status:  {r[\"status\"]}')
+"
+----
+
+Expected: `sovereign-granite-3b-instruct` v1.0.0, status `production`.
+
+== Exercise 4: Check the ledger chain
+
+[source,bash,role="execute",subs=attributes+]
+----
+curl -sf {demo_api_url}/api/ledger/verify | python3 -c "
+import sys, json
+d = json.load(sys.stdin)
+print(f'All valid: {d[\"all_valid\"]}')
+print(f'Chains:    {len(d[\"chains\"])}')
+"
+----
+
+Expected: `All valid: True`.
+
+== Module Summary
+
+* ✓ Logged in to OpenShift
+* ✓ All sovereign AI lab services healthy
+* ✓ Model serving in production
+* ✓ Ledger chain intact
+
+[.next-nav]
+xref:02-attestation.adoc[Next: Hardware Trust & Attestation →]

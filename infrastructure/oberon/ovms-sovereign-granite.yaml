@@ -1,0 +1,78 @@
+# Dedicated Granite 3.2 3B for sovereign AI lab
+# Served via OpenVINO Model Server — OpenAI-compatible /v3/chat/completions
+# Separate from Triforce's 9 models — this is the sovereign-governed model
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ovms-sovereign-granite
+  namespace: sovereign-ai-lab
+  labels:
+    app: ovms-sovereign-granite
+    sovereign-ai-lab/role: model-serving
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ovms-sovereign-granite
+  template:
+    metadata:
+      labels:
+        app: ovms-sovereign-granite
+        sovereign-ai-lab/role: model-serving
+    spec:
+      containers:
+        - name: ovms
+          image: openvino/model_server:latest
+          args:
+            - --model_name
+            - granite-3.2-sovereign
+            - --model_path
+            - /models/ov/sovereign-granite-2b
+            - --rest_port
+            - "8080"
+          ports:
+            - containerPort: 8080
+              name: rest
+          resources:
+            requests:
+              cpu: "4"
+              memory: 4Gi
+            limits:
+              cpu: "16"
+              memory: 8Gi
+          volumeMounts:
+            - name: models
+              mountPath: /models
+          readinessProbe:
+            httpGet:
+              path: /v2/health/ready
+              port: 8080
+            initialDelaySeconds: 60
+            periodSeconds: 15
+            failureThreshold: 20
+          livenessProbe:
+            httpGet:
+              path: /v2/health/ready
+              port: 8080
+            initialDelaySeconds: 120
+            periodSeconds: 30
+      volumes:
+        - name: models
+          persistentVolumeClaim:
+            claimName: sovereign-model-cache
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ovms-sovereign-granite
+  namespace: sovereign-ai-lab
+  labels:
+    app: ovms-sovereign-granite
+spec:
+  selector:
+    app: ovms-sovereign-granite
+  ports:
+    - port: 8080
+      targetPort: 8080
+      name: rest

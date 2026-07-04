@@ -1,0 +1,50 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: semantic-router
+  namespace: sovereign-ai-lab
+  labels:
+    app: semantic-router
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: semantic-router
+  template:
+    metadata:
+      labels:
+        app: semantic-router
+    spec:
+      containers:
+        - name: router
+          image: quay.io/sovereign-ai-lab/sovereign-semantic-router:latest
+          ports:
+            - containerPort: 8001
+          env:
+            - name: SR_BACKEND
+              value: "http://ovms-sovereign-granite:8080/v3/chat/completions"
+            - name: SR_MODEL
+              value: "granite-3.2-sovereign"
+            - name: SR_LEDGER_API
+              value: "http://ledger-gateway:28099/api/entries"
+            - name: SR_PORT
+              value: "8001"
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8001
+            initialDelaySeconds: 5
+            periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: semantic-router
+  namespace: sovereign-ai-lab
+spec:
+  selector:
+    app: semantic-router
+  ports:
+    - port: 8001
+      targetPort: 8001

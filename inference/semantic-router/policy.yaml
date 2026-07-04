@@ -1,0 +1,34 @@
+routes:
+  - name: sensitive-data
+    description: "PII, health, financial, legal content"
+    classifier: sensitive_content_v1
+    threshold: 0.75
+    destination: local
+    ledger_event: "router.sensitive.routed_local"
+
+  - name: prompt-injection
+    description: "Adversarial override attempts"
+    classifier: injection_detector_v1
+    threshold: 0.65
+    destination: reject
+    ledger_event: "router.injection.blocked"
+    opa_check: true
+
+  - name: general
+    description: "General queries"
+    classifier: default
+    destination: local
+    ledger_event: "router.general.routed_local"
+
+backends:
+  local:
+    endpoint: "http://vllm:8000/v1"
+    model: "granite-3.2-sovereign"
+
+ledger:
+  endpoint: "http://ledger-gateway:18099/api/entries"
+  agent_id: "semantic-router"
+  source_id: "sovereign-ai-lab"
+
+opa:
+  endpoint: "http://opa:8181/v1/data/sovereign/data_residency/allow"

@@ -1,0 +1,24 @@
+{
+  "id": "enterprise",
+  "name": "Enterprise",
+  "flag": "🏢",
+  "sectors": ["technology", "finance", "healthcare", "manufacturing"],
+  "compliance_labels": [
+    {"name": "IP Protection", "layer": "models", "color": "blue", "description": "Model weights and fine-tuning data are corporate IP — they must not leave the organization"},
+    {"name": "Data Classification", "layer": "data", "color": "teal", "description": "Customer data, financial data, and trade secrets classified and routed by sensitivity"},
+    {"name": "Audit Trail", "layer": "governance", "color": "amber", "description": "Board-level accountability requires a tamper-evident record of every AI decision"},
+    {"name": "Vendor Independence", "layer": "platform", "color": "red", "description": "No single-vendor lock-in — the stack must be portable across infrastructure providers"}
+  ],
+  "opa_policies": ["data-residency.rego", "model-access.rego", "model-promotion.rego", "agent-lifecycle.rego"],
+  "recommended_models": [
+    {"name": "Granite 3B", "reason": "Apache 2.0, no usage restrictions, fine-tunable on proprietary data"},
+    {"name": "Llama 3.2", "reason": "Strong performance, open weights, broad ecosystem support"}
+  ],
+  "key_concern": "When your AI runs on someone else's infrastructure, your prompts, your data, and your model's behavior are subject to their terms of service, their jurisdiction, and their business decisions. Enterprise sovereignty means you control the stack.",
+  "aibom_requirements": [
+    "Training data must be classified and approved by data governance team",
+    "Model evaluation must include domain-specific benchmarks",
+    "Fine-tuning provenance must be documented for audit",
+    "Model deployment requires security review sign-off"
+  ]
+}

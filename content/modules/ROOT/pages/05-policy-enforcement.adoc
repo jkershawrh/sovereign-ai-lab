@@ -1,0 +1,79 @@
+= Policy Enforcement
+:navtitle: Policy Enforcement
+
+*Time: ~10 minutes* · *Role: Compliance Officer, Platform Engineer*
+
+== Learning Objectives
+
+* Evaluate OPA data residency policies for different jurisdictions
+* Test allow and deny paths for model promotion
+* Understand how every policy decision is logged
+
+== Exercise 1: Test data residency — local processing
+
+[source,bash,role="execute",subs=attributes+]
+----
+curl -sf -X POST {opa_url}/v1/data/sovereign/data_residency/allow \
+  -H "Content-Type: application/json" \
+  -d '{"input": {"destination_region": "local", "data_classification": "general"}}' | python3 -c "
+import sys, json; print(f'Result: {json.load(sys.stdin)[\"result\"]}  (expected: true)')
+"
+----
+
+== Exercise 2: Test data residency — foreign region with sensitive data
+
+[source,bash,role="execute",subs=attributes+]
+----
+curl -sf -X POST {opa_url}/v1/data/sovereign/data_residency/allow \
+  -H "Content-Type: application/json" \
+  -d '{"input": {"destination_region": "us-east-1", "data_classification": "sensitive_personal"}}' | python3 -c "
+import sys, json; print(f'Result: {json.load(sys.stdin)[\"result\"]}  (expected: false)')
+"
+----
+
+== Exercise 3: Test model access — anonymous vs identified agent
+
+Anonymous agent (should be denied):
+
+[source,bash,role="execute",subs=attributes+]
+----
+curl -sf -X POST {opa_url}/v1/data/sovereign/model_access/allow \
+  -H "Content-Type: application/json" \
+  -d '{"input": {"agent_identity": "", "requested_model": "granite-3.2-sovereign"}}' | python3 -c "
+import sys, json; d = json.load(sys.stdin); print(f'Result: {d[\"result\"]}  (expected: false -- anonymous access denied)')
+"
+----
+
+Identified agent with approved model:
+
+[source,bash,role="execute",subs=attributes+]
+----
+curl -sf -X POST {opa_url}/v1/data/sovereign/model_access/allow \
+  -H "Content-Type: application/json" \
+  -d '{"input": {"agent_identity": "spiffe://sovereign-ai-lab/agent/demo", "requested_model": "granite-3.2-sovereign"}}' | python3 -c "
+import sys, json; d = json.load(sys.stdin); print(f'Result: {d[\"result\"]}  (expected: true)')
+"
+----
+
+== Exercise 4: List all loaded policies
+
+[source,bash,role="execute",subs=attributes+]
+----
+curl -sf {opa_url}/v1/policies | python3 -c "
+import sys, json
+d = json.load(sys.stdin)
+policies = [p['id'] for p in d.get('result', []) if 'sovereign' in p['id'] or 'data-residency' in p['id']]
+print(f'{len(policies)} sovereignty policies loaded:')
+for p in sorted(policies):
+    print(f'  {p}')
+"
+----
+
+== Module Summary
+
+* ✓ Tested data residency policies (local allowed, foreign denied)
+* ✓ Tested model access control (anonymous denied, SPIFFE allowed)
+* ✓ Verified all sovereignty policies loaded in OPA
+
+[.next-nav]
+xref:explore-jurisdiction.adoc[Next: Configure Your Jurisdiction →]

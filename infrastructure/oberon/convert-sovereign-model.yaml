@@ -1,0 +1,58 @@
+# Convert Granite 3.2 2B Instruct to OpenVINO INT4 format
+# Separate copy in sovereign-ai-lab's PVC for model governance isolation
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: convert-sovereign-granite
+  namespace: sovereign-ai-lab
+spec:
+  backoffLimit: 0
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: converter
+          image: python:3.11-slim
+          env:
+            - name: HOME
+              value: /tmp
+          command: ["bash", "-c"]
+          args:
+            - |
+              pip install -q optimum-intel[openvino] openvino openvino-tokenizers huggingface_hub nncf
+              python3 -c "
+              import os
+              from optimum.intel import OVModelForCausalLM
+              from transformers import AutoTokenizer
+
+              src = 'ibm-granite/granite-3.2-2b-instruct'
+              dest = '/models/ov/sovereign-granite-2b'
+
+              if os.path.exists(os.path.join(dest, 'openvino_model.xml')):
+                  print(f'SKIP: model already converted at {dest}', flush=True)
+              else:
+                  print(f'CONVERTING {src} -> {dest} (INT4)...', flush=True)
+                  model = OVModelForCausalLM.from_pretrained(
+                      src, export=True,
+                      quantization_config={'bits': 4, 'sym': True}
+                  )
+                  tokenizer = AutoTokenizer.from_pretrained(src)
+                  os.makedirs(dest, exist_ok=True)
+                  model.save_pretrained(dest)
+                  tokenizer.save_pretrained(dest)
+                  print(f'DONE: {src} -> {dest}', flush=True)
+              "
+          resources:
+            requests:
+              cpu: "8"
+              memory: 16Gi
+            limits:
+              cpu: "16"
+              memory: 32Gi
+          volumeMounts:
+            - name: models
+              mountPath: /models
+      volumes:
+        - name: models
+          persistentVolumeClaim:
+            claimName: sovereign-model-cache

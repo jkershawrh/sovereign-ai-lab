@@ -1,0 +1,60 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sovereign-data-mcp
+  namespace: sovereign-ai-lab
+  labels:
+    app: sovereign-data-mcp
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: sovereign-data-mcp
+  template:
+    metadata:
+      labels:
+        app: sovereign-data-mcp
+    spec:
+      containers:
+        - name: mcp
+          image: quay.io/sovereign-ai-lab/sovereign-data-mcp:latest
+          ports:
+            - containerPort: 8090
+          env:
+            - name: DOCS_DIR
+              value: /docs
+            - name: MCP_PORT
+              value: "8090"
+          volumeMounts:
+            - name: docs
+              mountPath: /docs
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8090
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          resources:
+            requests:
+              cpu: "250m"
+              memory: 128Mi
+            limits:
+              cpu: "500m"
+              memory: 256Mi
+      volumes:
+        - name: docs
+          configMap:
+            name: sovereign-docs
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: sovereign-data-mcp
+  namespace: sovereign-ai-lab
+spec:
+  selector:
+    app: sovereign-data-mcp
+  ports:
+    - port: 8090
+      targetPort: 8090

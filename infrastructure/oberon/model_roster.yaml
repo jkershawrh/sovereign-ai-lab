@@ -1,0 +1,35 @@
+# Model Roster — Sovereign AI Lab on dev-cluster-1
+# Dedicated model instance, separate from Triforce's 9 models
+# Served via OVMS — OpenAI-compatible /v3/chat/completions
+
+cluster:
+  name: dev-cluster-1
+  hardware: Intel Xeon 6767P
+  namespace: sovereign-ai-lab
+
+models:
+  - alias: granite-3.2-sovereign
+    huggingface_id: ibm-granite/granite-3.2-3b-instruct
+    params: 3B
+    architecture: dense-transformer
+    dtype: bfloat16
+    quantization: none
+    max_model_len: 4096
+    estimated_ram_gib: 12
+    estimated_cpu_cores: 16
+    role: Sovereign fine-tuned model for jurisdiction-local inference
+    ovms_service: ovms-sovereign-granite-3b
+    notes: >
+      Dedicated instance for sovereign AI lab. Fine-tuned on
+      jurisdiction-local synthetic data via the model lifecycle pipeline.
+      Served independently from Triforce models to demonstrate
+      sovereign model governance.
+
+resource_budget:
+  total_ram_gib: 16
+  total_cpu_cores: 16
+  headroom_note: >
+    dev-cluster-1 has 503 GiB RAM / 256 threads.
+    Triforce uses ~122 GiB / ~136 cores.
+    Sovereign AI lab adds ~16 GiB / ~16 cores.
+    Remaining: ~365 GiB / ~104 cores.

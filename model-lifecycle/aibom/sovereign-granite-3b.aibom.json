@@ -1,0 +1,45 @@
+{
+  "aibom_version": "1.0",
+  "generated_at": "2026-07-03T19:53:21.242980Z",
+  "model": {
+    "name": "sovereign-granite-3b-instruct",
+    "version": "1.0.0",
+    "base_model": {
+      "name": "ibm-granite/granite-3.2-3b-instruct",
+      "source": "https://huggingface.co/ibm-granite/granite-3.2-3b-instruct",
+      "license": "Apache-2.0"
+    },
+    "adaptation": {
+      "method": "Training Hub SFT",
+      "training_data_sources": [
+        {
+          "name": "synthetic-sovereign-docs",
+          "description": "Synthetic QA pairs from jurisdiction-local documents",
+          "generation_method": "SDG Hub",
+          "jurisdiction": "in-jurisdiction",
+          "pii_screened": true,
+          "records": 15
+        }
+      ],
+      "training_environment": {
+        "platform": "sovereign-ai-lab single node",
+        "node_type": "Intel Xeon TDX",
+        "in_jurisdiction": true
+      }
+    },
+    "evaluation": {
+      "framework": "lm-eval",
+      "benchmarks": [
+        {
+          "name": "mmlu",
+          "score": 0.62,
+          "threshold": 0.55,
+          "pass": true
+        }
+      ],
+      "all_pass": true
+    }
+  },
+  "provenance_hash": "c6135f031b3075167b50a5664dcba76a58cc83c9744771a6f0913908dffbca74",
+  "ledger_entry": "8aa773f2814b1b7656bcca292c9f99954ee2b00ef6d6fd77404301ed0b5b6081"
+}

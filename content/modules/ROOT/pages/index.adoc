@@ -1,0 +1,66 @@
+= Sovereign AI Lab
+:navtitle: Welcome
+
+Welcome to the Sovereign AI Lab. In this lab you will configure, test, and verify a sovereign AI stack running on Intel hardware with Red Hat OpenShift.
+
+== What You Will Learn
+
+* How Intel TDX provides hardware-level trust for AI workloads
+* How open-weight models with documented provenance replace opaque API dependencies
+* How OPA policies enforce data residency per jurisdiction
+* How a tamper-evident ledger proves every governance decision
+* How to configure sovereignty for your specific jurisdiction
+
+== Architecture Overview
+
+The sovereign AI stack has seven layers, all running on a single Intel Xeon node:
+
+[cols="2,3,4",options="header"]
+|===
+|Layer |Component |What It Does
+
+|Hardware Trust
+|Intel TDX
+|Confidential computing with cryptographic attestation
+
+|Platform
+|OpenShift AI
+|Kubernetes orchestration with confidential containers
+
+|Models
+|Granite (open weights)
+|Fine-tuned on jurisdiction-local data with full AIBOM provenance
+
+|Data Governance
+|OPA + Residency Policies
+|Deny-by-default policies per jurisdiction (GDPR, Gulf, PDPA)
+
+|Proof Chain
+|are-immutable-ledger
+|Tamper-evident hash chain recording every governance decision
+
+|Agent Control
+|Semantic Router + SPIFFE
+|Agent identity, prompt classification, injection detection
+
+|Gateway
+|Praxis + ContextForge
+|AI-aware proxy with MCP/A2A federation
+|===
+
+== Duration
+
+* *Required modules:* ~45 minutes
+* *Explore modules:* ~10 minutes each
+* *Total with all modules:* ~90 minutes
+
+== Your Environment
+
+* *Frontend:* {frontend_url}[Sovereign AI Lab UI^]
+* *Demo API:* {demo_api_url}[Demo API^]
+* *OpenShift Console:* {openshift_console_url}[Console^]
+
+Log in with user `{user}` and password `{password}`.
+
+[.next-nav]
+xref:01-setup.adoc[Next: Access Your Environment →]

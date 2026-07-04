@@ -1,0 +1,21 @@
+site:
+  title: Sovereign AI Lab
+  start_page: modules::index.adoc
+
+content:
+  sources:
+    - url: .
+      start_path: content
+      branches: HEAD
+
+ui:
+  bundle:
+    url: https://github.com/rhpds/rhdp_showroom_theme/releases/download/latest/ui-bundle.zip
+    snapshot: true
+
+output:
+  dir: ./www
+
+asciidoc:
+  extensions:
+    - '@sntke/antora-mermaid-extension'

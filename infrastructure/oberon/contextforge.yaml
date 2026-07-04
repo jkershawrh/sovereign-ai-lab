@@ -1,0 +1,79 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: contextforge
+  namespace: sovereign-ai-lab
+  labels:
+    app: contextforge
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: contextforge
+  template:
+    metadata:
+      labels:
+        app: contextforge
+    spec:
+      containers:
+        - name: contextforge
+          image: ghcr.io/ibm/mcp-context-forge:latest
+          ports:
+            - containerPort: 4444
+          env:
+            - name: HOST
+              value: "0.0.0.0"
+            - name: PORT
+              value: "4444"
+            - name: DATABASE_URL
+              value: "sqlite:////tmp/sovereign-demo.db"
+            - name: CACHE_TYPE
+              value: "memory"
+            - name: BASIC_AUTH_USER
+              value: "sovereign-admin"
+            - name: BASIC_AUTH_PASSWORD
+              value: "sovereign-demo-2026"
+            - name: JWT_SECRET_KEY
+              value: "sovereign-jwt-secret-change-in-prod"
+            - name: AUTH_ENCRYPTION_SECRET
+              value: "sovereign-enc-secret-change-in-prod"
+            - name: MCPGATEWAY_CATALOG_ENABLED
+              value: "false"
+            - name: MCPGATEWAY_UI_AIRGAPPED
+              value: "true"
+            - name: SSRF_ALLOW_PRIVATE_NETWORKS
+              value: "true"
+            - name: LOG_LEVEL
+              value: "INFO"
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: 4444
+            initialDelaySeconds: 15
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 4444
+            initialDelaySeconds: 20
+            periodSeconds: 15
+          resources:
+            requests:
+              cpu: "1"
+              memory: 2Gi
+            limits:
+              cpu: "4"
+              memory: 4Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: contextforge
+  namespace: sovereign-ai-lab
+spec:
+  selector:
+    app: contextforge
+  ports:
+    - port: 4444
+      targetPort: 4444

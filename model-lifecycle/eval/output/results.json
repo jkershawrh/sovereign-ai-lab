@@ -1,0 +1,13 @@
+{
+  "results": {
+    "mmlu": {
+      "acc,none": 0.62,
+      "acc_stderr,none": 0.01
+    }
+  },
+  "config": {
+    "model": "sovereign-granite-3b",
+    "device": "cpu",
+    "dtype": "float32"
+  }
+}

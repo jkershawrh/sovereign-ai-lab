@@ -1,0 +1,23 @@
+{
+  "id": "eu",
+  "name": "European Union",
+  "flag": "🇪🇺",
+  "sectors": ["finance", "healthcare", "public-sector", "defense"],
+  "compliance_labels": [
+    {"name": "GDPR", "layer": "data", "color": "blue", "description": "Data processed under EU law only"},
+    {"name": "EU AI Act", "layer": "governance", "color": "blue", "description": "High-risk AI documentation required"},
+    {"name": "GAIA-X", "layer": "platform", "color": "teal", "description": "European cloud federation standard"},
+    {"name": "SecNumCloud", "layer": "hardware", "color": "teal", "description": "French national cybersecurity certification"}
+  ],
+  "opa_policies": ["data-residency-gdpr.rego", "model-promotion.rego", "agent-lifecycle.rego"],
+  "recommended_models": [
+    {"name": "Granite 3B", "reason": "IBM/Red Hat origin, Apache 2.0, EU-adaptable"},
+    {"name": "Mistral 7B", "reason": "French origin, European alignment"}
+  ],
+  "key_concern": "EU AI Act Article 13 requires transparent documentation of high-risk AI systems. The proof chain satisfies this requirement automatically.",
+  "aibom_requirements": [
+    "Training data must document GDPR compliance",
+    "Data provenance must be fully documented",
+    "Model evaluation must include bias assessment"
+  ]
+}

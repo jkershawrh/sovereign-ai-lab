@@ -1,0 +1,22 @@
+{
+  "id": "seasia",
+  "name": "Southeast Asia",
+  "flag": "🌏",
+  "sectors": ["government", "healthcare", "education", "finance"],
+  "compliance_labels": [
+    {"name": "PDPA", "layer": "data", "color": "teal", "description": "Personal Data Protection Act compliance"},
+    {"name": "Gov Cloud Policy", "layer": "platform", "color": "teal", "description": "Government cloud deployment requirements"},
+    {"name": "Data Sovereignty", "layer": "hardware", "color": "coral", "description": "In-country processing required"}
+  ],
+  "opa_policies": ["data-residency-seasia.rego", "model-promotion.rego", "agent-lifecycle.rego"],
+  "recommended_models": [
+    {"name": "Granite 3B", "reason": "Multilingual, adaptable to Bahasa Indonesia"},
+    {"name": "Llama 3.2", "reason": "Strong multilingual coverage, open weights"}
+  ],
+  "key_concern": "A model that cannot serve citizens in their own language is not a sovereign model. Local language capability is a sovereignty requirement, not a feature.",
+  "aibom_requirements": [
+    "Model must demonstrate local language capability",
+    "Training data must include regional language content",
+    "Evaluation must include local language benchmark"
+  ]
+}

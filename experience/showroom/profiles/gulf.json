@@ -1,0 +1,22 @@
+{
+  "id": "gulf",
+  "name": "Gulf States",
+  "flag": "🌙",
+  "sectors": ["government", "finance", "energy", "healthcare"],
+  "compliance_labels": [
+    {"name": "National AI Strategy", "layer": "governance", "color": "amber", "description": "Aligned with national AI 2031 strategy"},
+    {"name": "Data Classification", "layer": "data", "color": "amber", "description": "National data classification policy"},
+    {"name": "Data Localization", "layer": "hardware", "color": "coral", "description": "Data must not leave national jurisdiction"}
+  ],
+  "opa_policies": ["data-residency-gulf.rego", "model-promotion.rego", "agent-lifecycle.rego"],
+  "recommended_models": [
+    {"name": "Granite 3B", "reason": "Adaptable to Arabic via SDG Hub"},
+    {"name": "Llama 3.2", "reason": "Multilingual, open weights"}
+  ],
+  "key_concern": "TDX provides hardware-level cryptographic proof that data did not leave the national jurisdiction -- a requirement that software-only controls cannot satisfy.",
+  "aibom_requirements": [
+    "Training data must be domestically sourced or formally approved",
+    "Model must support Arabic language",
+    "Evaluation must include Arabic language benchmarks"
+  ]
+}

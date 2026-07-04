@@ -1,0 +1,93 @@
+= Deep Dive: Proof Chain
+:navtitle: Proof Chain
+
+*Time: ~15 minutes* · *Role: Security Architect, Auditor*
+
+== Learning Objectives
+
+* Inspect individual ledger entries and their hash linkage
+* Verify the full chain integrity
+* Understand how the seven sovereignty layers map to ledger events
+
+== Exercise 1: Count entries by writer
+
+[source,bash,role="execute",subs=attributes+]
+----
+curl -sf {demo_api_url}/api/ledger/writers | python3 -c "
+import sys, json
+d = json.load(sys.stdin)
+print(f'Total entries: {d[\"total\"]}')
+print()
+for writer, count in sorted(d['writers'].items(), key=lambda x: -x[1]):
+    print(f'  {writer:45s} {count}')
+"
+----
+
+== Exercise 2: Inspect a specific chain
+
+Each `entry_type` forms its own hash chain. Inspect the attestation chain:
+
+[source,bash,role="execute",subs=attributes+]
+----
+curl -sf {ledger_url}/api/verify/tdx.attestation.completed | python3 -c "
+import sys, json
+d = json.load(sys.stdin)
+print(f'Chain:    {d[\"entry_type\"]}')
+print(f'Valid:    {d[\"chain_valid\"]}')
+print(f'Entries:  {d[\"entries_checked\"]}')
+if d.get('failure_reason'):
+    print(f'Failure:  {d[\"failure_reason\"]}')
+"
+----
+
+== Exercise 3: Map entries to sovereignty layers
+
+[source,bash,role="execute",subs=attributes+]
+----
+curl -sf {demo_api_url}/api/ledger | python3 -c "
+import sys, json
+entries = json.load(sys.stdin)
+layers = {}
+for e in entries:
+    t = e['entry_type']
+    if t.startswith('tdx.'): layer = 'Hardware Trust'
+    elif t.startswith('platform.'): layer = 'Platform'
+    elif t.startswith('pipeline.') or t.startswith('model.'): layer = 'Models'
+    elif t.startswith('data.'): layer = 'Data'
+    elif t.startswith('agent.'): layer = 'Agent Control'
+    elif t.startswith('router.'): layer = 'Execution'
+    else: layer = 'Governance'
+    layers[layer] = layers.get(layer, 0) + 1
+print('Entries by sovereignty layer:')
+for layer in ['Hardware Trust', 'Platform', 'Models', 'Data', 'Governance', 'Agent Control', 'Execution']:
+    count = layers.get(layer, 0)
+    bar = '█' * count
+    print(f'  {layer:16s} {count:3d}  {bar}')
+"
+----
+
+== Exercise 4: Verify all chains
+
+[source,bash,role="execute",subs=attributes+]
+----
+curl -sf {demo_api_url}/api/ledger/verify | python3 -c "
+import sys, json
+d = json.load(sys.stdin)
+print(f'All valid: {d[\"all_valid\"]}')
+print(f'Chains:    {len(d[\"chains\"])}')
+print()
+for chain in d['chains']:
+    status = '✓' if chain['chain_valid'] else '✗'
+    print(f'  {status} {chain[\"entry_type\"]:45s} {chain[\"entries_checked\"]} entries')
+"
+----
+
+== Module Summary
+
+* ✓ Inspected ledger entries by writer and by sovereignty layer
+* ✓ Verified individual chain integrity
+* ✓ Confirmed all seven sovereignty layers have proof chain entries
+* ✓ Verified full chain — all chains valid
+
+[.next-nav]
+xref:architecture.adoc[Next: Architecture Reference →]

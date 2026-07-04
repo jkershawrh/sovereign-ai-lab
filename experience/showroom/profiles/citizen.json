@@ -1,0 +1,24 @@
+{
+  "id": "citizen",
+  "name": "Individual",
+  "flag": "👤",
+  "sectors": ["personal", "health", "finance", "education"],
+  "compliance_labels": [
+    {"name": "Data Ownership", "layer": "data", "color": "teal", "description": "Your conversations, health data, and personal information belong to you — not the model provider"},
+    {"name": "Right to Explanation", "layer": "governance", "color": "amber", "description": "When AI makes decisions about you, you have the right to understand why"},
+    {"name": "Local Processing", "layer": "hardware", "color": "blue", "description": "Sensitive queries processed on local hardware — never sent to a remote API"},
+    {"name": "No Profiling", "layer": "models", "color": "red", "description": "Your usage patterns and prompts are not used to train models or build profiles"}
+  ],
+  "opa_policies": ["data-residency.rego", "model-access.rego", "agent-lifecycle.rego"],
+  "recommended_models": [
+    {"name": "Granite 3B", "reason": "Small enough to run on personal hardware, open weights, no usage telemetry"},
+    {"name": "Phi-3 Mini", "reason": "3.8B parameters, runs on consumer hardware, strong reasoning"}
+  ],
+  "key_concern": "Every time you ask a cloud AI a question, someone else stores your prompt, processes your data on their infrastructure, and may use your interactions to improve their model. Citizen sovereignty means your AI conversations are private and local.",
+  "aibom_requirements": [
+    "Model must be runnable on consumer hardware (CPU, <16GB RAM)",
+    "No telemetry or usage reporting to third parties",
+    "Training data must not include scraped personal data without consent",
+    "Model must support user's local language"
+  ]
+}

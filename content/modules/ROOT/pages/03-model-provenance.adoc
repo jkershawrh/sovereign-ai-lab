@@ -1,0 +1,102 @@
+= Model Provenance & AIBOM
+:navtitle: Model Provenance
+
+*Time: ~10 minutes* · *Role: Data Scientist, AI Governance Lead*
+
+== Learning Objectives
+
+* Inspect the AI Bill of Materials (AIBOM) for the sovereign model
+* Understand how OPA gates model promotion to production
+* Verify provenance entries in the immutable ledger
+
+== Exercise 1: Inspect the AIBOM
+
+[source,bash,role="execute",subs=attributes+]
+----
+curl -sf {demo_api_url}/api/model/aibom | python3 -c "
+import sys, json
+d = json.load(sys.stdin)
+m = d['model']
+print(f'Model:           {m[\"name\"]} v{m[\"version\"]}')
+print(f'Base:            {m[\"base_model\"][\"name\"]}')
+print(f'License:         {m[\"base_model\"][\"license\"]}')
+print(f'Training method: {m[\"adaptation\"][\"method\"]}')
+print(f'Records:         {m[\"adaptation\"][\"training_data_sources\"][0][\"records\"]}')
+print(f'In-jurisdiction: {m[\"adaptation\"][\"training_environment\"][\"in_jurisdiction\"]}')
+print(f'Provenance hash: {d[\"provenance_hash\"][:24]}...')
+print()
+print('Benchmarks:')
+for b in m['evaluation']['benchmarks']:
+    status = 'PASS' if b['pass'] else 'FAIL'
+    print(f'  {b[\"name\"]}: {b[\"score\"]:.3f} (threshold {b[\"threshold\"]}) [{status}]')
+"
+----
+
+== Exercise 2: Check the promotion decision
+
+[source,bash,role="execute",subs=attributes+]
+----
+curl -sf {demo_api_url}/api/model/promotion | python3 -c "
+import sys, json
+d = json.load(sys.stdin)
+print(f'Decision:    {d[\"decision\"].upper()}')
+print(f'AIBOM hash:  {d[\"aibom_hash\"][:24]}...')
+print(f'Ledger hash: {d[\"ledger_entry_hash\"][:24]}...')
+"
+----
+
+== Exercise 3: Test the OPA promotion gate
+
+Try promoting a model without an AIBOM:
+
+[source,bash,role="execute",subs=attributes+]
+----
+curl -sf -X POST {opa_url}/v1/data/sovereign/model_promotion/allow \
+  -H "Content-Type: application/json" \
+  -d '{"input": {"aibom_present": false, "training_in_jurisdiction": true, "all_benchmarks_pass": true}}' | python3 -c "
+import sys, json
+print(f'Result: {json.load(sys.stdin)[\"result\"]}')
+print('Expected: false -- AIBOM is required for promotion')
+"
+----
+
+Now with all requirements met:
+
+[source,bash,role="execute",subs=attributes+]
+----
+curl -sf -X POST {opa_url}/v1/data/sovereign/model_promotion/allow \
+  -H "Content-Type: application/json" \
+  -d '{"input": {"aibom_present": true, "training_in_jurisdiction": true, "all_benchmarks_pass": true}}' | python3 -c "
+import sys, json
+print(f'Result: {json.load(sys.stdin)[\"result\"]}')
+print('Expected: true -- all promotion requirements met')
+"
+----
+
+== Exercise 4: Verify provenance in the ledger
+
+[source,bash,role="execute",subs=attributes+]
+----
+curl -sf {demo_api_url}/api/ledger | python3 -c "
+import sys, json
+entries = json.load(sys.stdin)
+for event in ['model.aibom.registered', 'model.promoted']:
+    found = [e for e in entries if e.get('entry_type') == event]
+    if found:
+        e = found[-1]
+        print(f'{event}:')
+        print(f'  Hash:  {e[\"entry_hash\"][:24]}...')
+        print(f'  Agent: {e[\"agent_id\"]}')
+    print()
+"
+----
+
+== Module Summary
+
+* ✓ Inspected the full AI Bill of Materials
+* ✓ Verified base model is open-weight with Apache 2.0 license
+* ✓ Tested OPA promotion gate (deny without AIBOM, allow with full compliance)
+* ✓ Confirmed provenance events in immutable ledger
+
+[.next-nav]
+xref:04-inference-routing.adoc[Next: Sovereign Inference →]

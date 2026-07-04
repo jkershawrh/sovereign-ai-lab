@@ -1,0 +1,68 @@
+= MCP Tool Federation
+:navtitle: MCP Tools
+
+*Time: ~10 minutes* · *Role: AI Engineer, Solution Architect*
+
+== Learning Objectives
+
+* Discover MCP tools available in the sovereign stack
+* Query jurisdiction-local documents via MCP
+* Understand how tool federation works without external calls
+
+== Exercise 1: List available MCP tools
+
+[source,bash,role="execute",subs=attributes+]
+----
+curl -sf {demo_api_url}/api/mcp/tools | python3 -c "
+import sys, json
+d = json.load(sys.stdin)
+for tool in d.get('tools', []):
+    print(f'{tool[\"name\"]:30s} {tool[\"description\"]}')
+"
+----
+
+== Exercise 2: Query the health policy
+
+[source,bash,role="execute",subs=attributes+]
+----
+curl -sf -X POST {demo_api_url}/api/mcp/call \
+  -H "Content-Type: application/json" \
+  -d '{"name": "get_health_policy", "arguments": {}}' | python3 -c "
+import sys, json
+d = json.load(sys.stdin)
+result = d.get('result', '')
+print(result[:500])
+print(f'... ({len(result)} total characters)')
+"
+----
+
+== Exercise 3: Search across documents
+
+[source,bash,role="execute",subs=attributes+]
+----
+curl -sf -X POST {demo_api_url}/api/mcp/call \
+  -H "Content-Type: application/json" \
+  -d '{"name": "search_documents", "arguments": {"query": "data residency"}}' | python3 -c "
+import sys, json
+d = json.load(sys.stdin)
+results = json.loads(d.get('result', '[]'))
+for r in results:
+    print(f'Document: {r[\"document\"]}')
+    print(f'Excerpt:  {r[\"excerpt\"][:150]}...')
+    print()
+"
+----
+
+[NOTE]
+====
+All MCP tools serve jurisdiction-local documents only. No external API calls are made. The documents are synthetic policy texts created for this demo — plausible but entirely fictional.
+====
+
+== Module Summary
+
+* ✓ Discovered MCP tools federated through ContextForge
+* ✓ Queried jurisdiction-local documents
+* ✓ Confirmed zero external network calls
+
+[.next-nav]
+xref:explore-proof-chain.adoc[Next: Deep Dive: Proof Chain →]

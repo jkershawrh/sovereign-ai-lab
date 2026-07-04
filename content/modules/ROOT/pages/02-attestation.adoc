@@ -1,0 +1,104 @@
+= Hardware Trust & Attestation
+:navtitle: Attestation
+
+*Time: ~10 minutes* · *Role: Security Architect, Platform Engineer*
+
+== Learning Objectives
+
+* Understand how Intel TDX creates a hardware trust domain
+* Run a live attestation against Intel Trust Authority
+* Verify the attestation appears in the immutable ledger
+
+== How It Works
+
+Intel TDX (Trust Domain Extensions) creates a cryptographically isolated environment on the CPU. The trust domain is attested by Intel Trust Authority, which verifies the CPU, firmware, and enclave integrity. The attestation report — including TCB status and quote hash — is written to the immutable ledger as the first proof in the chain.
+
+[cols="2,4",options="header"]
+|===
+|Component |Role
+
+|TDX Trust Domain
+|Hardware-isolated enclave for AI workloads
+
+|Intel Trust Authority
+|External attestation service (the only permitted outbound call)
+
+|Attestation Report
+|Cryptographic proof of hardware integrity
+
+|Immutable Ledger
+|Hash-chained record of the attestation event
+|===
+
+== Exercise 1: Check current attestation
+
+[source,bash,role="execute",subs=attributes+]
+----
+curl -sf {demo_api_url}/api/attestation | python3 -c "
+import sys, json
+d = json.load(sys.stdin)
+print(d.get('summary', 'No attestation found'))
+"
+----
+
+== Exercise 2: Run a live attestation
+
+This calls Intel Trust Authority to attest the running trust domain:
+
+[source,bash,role="execute",subs=attributes+]
+----
+curl -sf -X POST {demo_api_url}/api/attestation/refresh | python3 -c "
+import sys, json
+d = json.load(sys.stdin)
+print('Success!' if d.get('success') else 'Failed')
+print(d.get('output', '')[:300])
+"
+----
+
+[NOTE]
+====
+On non-TDX hardware, this runs in simulation mode. The attestation is recorded in the ledger either way — the difference is whether the TCB status comes from real Intel Trust Authority or is simulated.
+====
+
+== Exercise 3: Verify attestation in the ledger
+
+[source,bash,role="execute",subs=attributes+]
+----
+curl -sf {demo_api_url}/api/ledger | python3 -c "
+import sys, json
+entries = json.load(sys.stdin)
+attest = [e for e in entries if e.get('entry_type') == 'tdx.attestation.completed']
+if attest:
+    e = attest[-1]
+    print(f'Entry hash:  {e[\"entry_hash\"]}')
+    print(f'Agent:       {e[\"agent_id\"]}')
+    print(f'Chain pos:   {e[\"chain_position\"]}')
+else:
+    print('No attestation entry found')
+"
+----
+
+== Exercise 4: Verify the chain is intact
+
+[source,bash,role="execute",subs=attributes+]
+----
+curl -sf {demo_api_url}/api/ledger/verify | python3 -c "
+import sys, json
+d = json.load(sys.stdin)
+for chain in d['chains']:
+    if chain['entry_type'] == 'tdx.attestation.completed':
+        print(f'Chain:   {chain[\"entry_type\"]}')
+        print(f'Valid:   {chain[\"chain_valid\"]}')
+        print(f'Entries: {chain[\"entries_checked\"]}')
+"
+----
+
+== Module Summary
+
+* ✓ Understood TDX trust domain architecture
+* ✓ Ran live attestation against Intel Trust Authority
+* ✓ Verified attestation recorded in immutable ledger
+* ✓ Confirmed chain integrity for attestation events
+
+[.next-nav]
+xref:03-model-provenance.adoc[Next: Model Provenance & AIBOM →]

@@ -1,0 +1,20 @@
+name: modules
+title: "Sovereign AI Lab"
+version: ~
+nav:
+  - modules/ROOT/nav.adoc
+asciidoc:
+  attributes:
+    guid: "%guid%"
+    user: "%user%"
+    password: "%password%"
+    openshift_api_url: "%openshift_api_url%"
+    openshift_console_url: "%openshift_console_url%"
+    openshift_cluster_ingress_domain: "%openshift_cluster_ingress_domain%"
+    frontend_url: "https://sovereign-ai-lab-{user}.{openshift_cluster_ingress_domain}"
+    demo_api_url: "https://demo-api-{user}.{openshift_cluster_ingress_domain}"
+    ledger_url: "https://ledger-gateway-{user}.{openshift_cluster_ingress_domain}"
+    opa_url: "https://opa-{user}.{openshift_cluster_ingress_domain}"
+    showroom-collection-version: v1.6.8
+    experimental: true
+    page-pagination: true

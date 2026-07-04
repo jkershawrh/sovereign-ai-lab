@@ -1,0 +1,7 @@
+model: /models/granite-3.2-3b-instruct-q4
+device: cpu
+dtype: float32
+max_model_len: 4096
+tensor_parallel_size: 1
+served_model_name: granite-3.2-sovereign
+trust_remote_code: false

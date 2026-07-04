@@ -1,0 +1,15 @@
+# Reuse the existing Triforce model cache PVC on dev-cluster-1
+# The Granite 3.2 3B model will be stored alongside the 9 Triforce models
+# If a separate PVC is needed, change claimName in the OVMS deployment
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: sovereign-model-cache
+  namespace: sovereign-ai-lab
+spec:
+  accessModes:
+    - ReadWriteMany
+  storageClassName: nfs-storage
+  resources:
+    requests:
+      storage: 50Gi

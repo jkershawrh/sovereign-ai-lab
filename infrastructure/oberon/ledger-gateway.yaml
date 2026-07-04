@@ -1,0 +1,50 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ledger-gateway
+  namespace: sovereign-ai-lab
+  labels:
+    app: ledger-gateway
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ledger-gateway
+  template:
+    metadata:
+      labels:
+        app: ledger-gateway
+    spec:
+      containers:
+        - name: gateway
+          image: quay.io/sovereign-ai-lab/sovereign-ledger-gateway:latest
+          ports:
+            - containerPort: 28099
+          env:
+            - name: LEDGER_ENDPOINT
+              value: "ledger:9092"
+            - name: GATEWAY_PORT
+              value: "28099"
+            - name: GATEWAY_HOST
+              value: "0.0.0.0"
+            - name: GATEWAY_CORS_ORIGINS
+              value: "http://localhost:9001,http://localhost:9099,http://localhost:5173"
+          readinessProbe:
+            httpGet:
+              path: /api/entries
+              port: 28099
+            initialDelaySeconds: 10
+            periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ledger-gateway
+  namespace: sovereign-ai-lab
+spec:
+  selector:
+    app: ledger-gateway
+  ports:
+    - port: 28099
+      targetPort: 28099

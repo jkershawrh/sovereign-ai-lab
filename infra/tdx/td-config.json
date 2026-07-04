@@ -1,0 +1,8 @@
+{
+  "td_id": "2F0A0FE2-AE07-4B1E-9190-F7A9FF2DDAD7",
+  "launched_at": "2026-07-03T17:58:48Z",
+  "platform": "simulated",
+  "kernel": "25.5.0",
+  "arch": "arm64",
+  "tdx_module_version": "simulated"
+}

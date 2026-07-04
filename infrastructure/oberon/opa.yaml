@@ -1,0 +1,54 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: opa
+  namespace: sovereign-ai-lab
+  labels:
+    app: opa
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: opa
+  template:
+    metadata:
+      labels:
+        app: opa
+    spec:
+      containers:
+        - name: opa
+          image: openpolicyagent/opa:latest
+          args:
+            - run
+            - --server
+            - --addr
+            - ":8181"
+            - /policies/..data/
+          ports:
+            - containerPort: 8181
+          volumeMounts:
+            - name: policies
+              mountPath: /policies
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8181
+            initialDelaySeconds: 5
+            periodSeconds: 5
+      volumes:
+        - name: policies
+          configMap:
+            name: opa-policies
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: opa
+  namespace: sovereign-ai-lab
+spec:
+  selector:
+    app: opa
+  ports:
+    - port: 8181
+      targetPort: 8181

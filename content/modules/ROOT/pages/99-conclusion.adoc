@@ -1,0 +1,55 @@
+= Conclusion & Next Steps
+:navtitle: Conclusion
+
+== What You Built
+
+In this lab you configured and tested a sovereign AI stack:
+
+* ✓ *Hardware Trust* — TDX attestation verified and recorded in the ledger
+* ✓ *Model Provenance* — AIBOM inspected, promotion gate tested
+* ✓ *Sovereign Inference* — Prompts classified, routed, and served by an open-weight model on your infrastructure
+* ✓ *Policy Enforcement* — OPA deny-by-default policies evaluated for your jurisdiction
+* ✓ *Proof Chain* — Every governance decision hash-chained and independently verifiable
+
+== Run It Yourself
+
+Fork the repository and run the full stack on a TDX-enabled Intel Xeon:
+
+[source,bash]
+----
+git clone https://github.com/rhpds/sovereign-ai-lab
+cd sovereign-ai-lab
+make up
+----
+
+All components are licensed Apache 2.0 or MIT.
+
+== Production Path
+
+[cols="2,4",options="header"]
+|===
+|Capability |What Changes
+
+|GPU Confidential Compute
+|Add NVIDIA H100 in CC mode — attestation extends to GPU memory
+
+|Multi-Node Inference
+|llm-d distributes serving across a cluster
+
+|Agent Lifecycle
+|Kagenti operator ships as part of Red Hat AI H2 2026
+
+|Agent Sandbox
+|OpenShell (NVIDIA + Red Hat) for process-level enforcement
+|===
+
+== Feedback
+
+We would love to hear your feedback on this lab. Please reach out to your Red Hat and Intel representatives.
+
+== Attribution
+
+* *Red Hat* — OpenShift AI, Praxis, OPA integration
+* *Intel* — TDX, Intel Trust Authority, Xeon hardware
+* *IBM Research* — Granite models, ContextForge, SDG Hub
+* *Open Source* — are-immutable-ledger, vLLM Semantic Router
