@@ -1,0 +1,161 @@
+config: namespace
+cloud_provider: none
+tag: main
+
+requirements_content:
+  collections:
+  - name: https://github.com/agnosticd/namespaced_workloads.git
+    type: git
+    version: '{{ tag }}'
+  - name: https://github.com/rhpds/rhpds.litellm_virtual_keys.git
+    type: git
+    version: '{{ tag }}'
+  - name: https://github.com/agnosticd/ai_quickstarts.git
+    type: git
+    version: '{{ tag }}'
+  - name: https://github.com/agnosticd/showroom.git
+    type: git
+    version: v1.6.8
+
+workloads:
+- agnosticd.namespaced_workloads.ocp4_workload_tenant_keycloak_user
+- agnosticd.namespaced_workloads.ocp4_workload_tenant_namespace
+- rhpds.litellm_virtual_keys.ocp4_workload_litellm_virtual_keys
+- agnosticd.ai_quickstarts.quickstart_deploy_via_make
+- agnosticd.showroom.ocp4_workload_showroom
+
+# ─── Authentication ─────────────────────────────────────────────────────────
+
+common_password: '{{ lookup(''password'', output_dir ~ ''/common_password'', length=12, chars=[''ascii_letters'', ''digits'']) }}'
+
+ocp4_workload_tenant_keycloak_username: user-{{ guid }}
+ocp4_workload_tenant_keycloak_user_password: '{{ common_password }}'
+ocp4_workload_tenant_keycloak_user_keycloak_namespace: keycloak
+ocp4_workload_tenant_keycloak_user_keycloak_realm: sso
+
+# ─── Namespace ───────────────────────────────────────────────────────────────
+
+ocp4_workload_tenant_namespace_username: user-{{ guid }}
+ocp4_workload_tenant_namespace_use_cluster_quota: true
+ocp4_workload_tenant_namespace_suffixes:
+- suffix: sovereign-ai-lab
+
+ocp4_workload_tenant_namespace_default_quota:
+  limits.cpu: '16'
+  requests.cpu: '8'
+  limits.memory: 24Gi
+  requests.memory: 12Gi
+  requests.storage: 50Gi
+
+ocp4_workload_tenant_namespace_default_limit_range:
+  default:
+    cpu: '2'
+    memory: 4Gi
+  defaultRequest:
+    cpu: 100m
+    memory: 256Mi
+
+# ─── Model access ───────────────────────────────────────────────────────────
+
+ocp4_workload_litellm_virtual_keys_duration: 7d
+ocp4_workload_litellm_virtual_keys_models:
+- granite-3.2-sovereign
+
+ai_model_requirements:
+  models:
+  - name: granite-3.2-sovereign
+    purpose: Sovereign inference — jurisdiction-local model serving via OVMS
+    access_method: local_cpu
+    estimated_input_tokens_per_request: 500
+    estimated_output_tokens_per_request: 200
+    estimated_requests_per_session: 20
+    estimated_session_duration_hours: 2
+    max_concurrent_users: 1
+    expected_total_users: 4
+
+# ─── Application deploy ─────────────────────────────────────────────────────
+
+quickstart_deploy_via_make_repo_url: https://github.com/rhpds/sovereign-ai-lab
+quickstart_deploy_via_make_scm_ref: main
+quickstart_deploy_via_make_directory: infrastructure/helm
+quickstart_deploy_via_make_params:
+  NAMESPACE: user-{{ guid }}-sovereign-ai-lab
+quickstart_deploy_via_make_uninstall_params:
+  NAMESPACE: user-{{ guid }}-sovereign-ai-lab
+
+# ─── Showroom ────────────────────────────────────────────────────────────────
+
+ocp4_workload_showroom_passthrough_user_data: true
+ocp4_workload_showroom_content_url: https://github.com/rhpds/sovereign-ai-lab
+ocp4_workload_showroom_content_ref: main
+ocp4_workload_showroom_content_dir: content
+ocp4_workload_showroom_user: user-{{ guid }}
+ocp4_workload_showroom_user_password: '{{ common_password }}'
+ocp4_workload_showroom_user_data:
+  user: user-{{ guid }}
+  password: '{{ common_password }}'
+  openshift_api_url: '{{ sandbox_openshift_api_url }}'
+  openshift_console_url: '{{ sandbox_openshift_console_url }}'
+  openshift_cluster_ingress_domain: '{{ sandbox_openshift_ingress_domain }}'
+  frontend_url: https://sovereign-ai-lab-user-{{ guid }}-sovereign-ai-lab.{{ sandbox_openshift_ingress_domain }}
+  demo_api_url: https://demo-api-user-{{ guid }}-sovereign-ai-lab.{{ sandbox_openshift_ingress_domain }}
+  ledger_url: https://ledger-gateway-user-{{ guid }}-sovereign-ai-lab.{{ sandbox_openshift_ingress_domain }}
+  opa_url: https://opa-user-{{ guid }}-sovereign-ai-lab.{{ sandbox_openshift_ingress_domain }}
+
+# ─── Misc ────────────────────────────────────────────────────────────────────
+
+requester_email: rhdp-{{ guid }}@demo.redhat.com
+catalog_item_name: ai-quickstarts.ai-qs-sovereign-ai-lab-tenant.event
+openshift_api_url: '{{ sandbox_openshift_api_url }}'
+openshift_cluster_admin_token: '{{ cluster_admin_agnosticd_sa_token }}'
+
+# ─── Catalog metadata ───────────────────────────────────────────────────────
+
+__meta__:
+  access_control:
+    allow_groups:
+    - lab-access-group
+  asset_uuid: 8ad43686-b839-45b3-9b21-9ac2f9cc02e7
+  owners:
+    maintainer:
+    - name: Jonathan Kershaw
+      email: maintainer@example.com
+  sandbox_api:
+    actions:
+      destroy:
+        catch_all: false
+  catalog:
+    display_name: "Sovereign AI Lab: Provable AI Governance on Intel Xeon"
+    category: Labs
+    namespace: babylon-catalog-{{ stage | default('?') }}
+    keywords:
+    - openshift
+    - quickstart
+    - ai
+    - sovereignty
+    - intel
+    - tdx
+    - governance
+    - ledger
+    labels:
+      Provider: RHDP
+    reportingLabels:
+      primaryBU: Hybrid_Platforms
+    parameters: []
+  deployer:
+    scm_url: https://github.com/agnosticd/agnosticd-v2
+    scm_ref: main
+    execution_environment:
+      image: quay.io/agnosticd/ee-multicloud:chained-2026-02-23
+      pull: missing
+    actions:
+      destroy:
+        disable: false
+      start:
+        disable: false
+      status:
+        disable: true
+      stop:
+        disable: false
+      update:
+        disable: true
