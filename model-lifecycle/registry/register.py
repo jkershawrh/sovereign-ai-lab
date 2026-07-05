@@ -2,11 +2,14 @@
 import json, datetime
 from pathlib import Path
 
+BASE_DIR = Path(__file__).resolve().parent
+MODEL_LIFECYCLE_DIR = BASE_DIR.parent
+
 aibom = json.loads(
-    Path("../aibom/sovereign-granite-3b.aibom.json").read_text()
+    (MODEL_LIFECYCLE_DIR / "aibom" / "sovereign-granite-3b.aibom.json").read_text()
 )
 promotion = json.loads(
-    Path("../promote/promotion-decision.json").read_text()
+    (MODEL_LIFECYCLE_DIR / "promote" / "promotion-decision.json").read_text()
 )
 
 entry = {
@@ -20,7 +23,7 @@ entry = {
     "registered_at": datetime.datetime.utcnow().isoformat() + "Z",
 }
 
-Path("registry.json").write_text(json.dumps(entry, indent=2))
+(BASE_DIR / "registry.json").write_text(json.dumps(entry, indent=2) + "\n")
 print(f"Model registered: {entry['name']} v{entry['version']}")
 print(f"AIBOM hash: {entry['aibom_hash'][:16]}...")
 print(f"Promotion ledger: {entry['promotion_ledger_hash'][:16]}...")

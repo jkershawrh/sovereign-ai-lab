@@ -35,9 +35,14 @@ export interface AttestationData {
 
 export interface Benchmark {
   name: string
+  category?: string
+  metric?: string
   score: number
   threshold: number
+  direction?: 'min' | 'max'
   pass: boolean
+  description?: string
+  missing?: boolean
 }
 
 export interface AIBOM {
@@ -80,6 +85,7 @@ export interface AIBOM {
 export interface PromotionDecision {
   decision: string
   ledger_entry_hash: string
+  ledger_status?: 'recorded' | 'offline'
   aibom_hash: string
   promoted_at: string | number
 }

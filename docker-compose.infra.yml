@@ -97,7 +97,10 @@ services:
     volumes:
       - ./inference/semantic-router/policy.yaml:/config/policy.yaml:ro
     environment:
-      SR_CONFIG: /config/policy.yaml
+      SR_BACKEND: "http://vllm:8000/v1/chat/completions"
+      SR_MODEL: "granite-3.2-sovereign"
+      SR_LEDGER_API: "http://ledger-gateway:28099/api/entries"
+      SR_PORT: "8001"
     depends_on:
       ledger:
         condition: service_healthy

@@ -1,4 +1,17 @@
 import { useModel } from '../hooks/useModel'
+import type { Benchmark } from '../lib/types'
+
+function benchmarkPercent(benchmark: Benchmark) {
+  if (benchmark.direction === 'max') {
+    if (benchmark.score <= 0) return 100
+    return Math.min(100, (benchmark.threshold / benchmark.score) * 100)
+  }
+  return Math.min(100, (benchmark.score / Math.max(benchmark.threshold, 0.01)) * 100)
+}
+
+function thresholdLabel(benchmark: Benchmark) {
+  return `${benchmark.direction === 'max' ? '<=' : '>='} ${benchmark.threshold}`
+}
 
 export default function AibomPanel() {
   const { aibom, promotion, loading } = useModel()
@@ -63,7 +76,7 @@ export default function AibomPanel() {
                 fontFamily: 'Red Hat Mono, monospace',
                 color: b.pass ? 'var(--rh-green)' : 'var(--rh-red)',
               }}>
-                {b.score.toFixed(3)} / {b.threshold} {b.pass ? 'PASS' : 'FAIL'}
+                {b.score.toFixed(3)} {thresholdLabel(b)} {b.pass ? 'PASS' : 'FAIL'}
               </span>
             </div>
             <div style={{
@@ -72,7 +85,7 @@ export default function AibomPanel() {
             }}>
               <div style={{
                 height: '100%', borderRadius: '3px',
-                width: `${Math.min(100, (b.score / b.threshold) * 100)}%`,
+                width: `${benchmarkPercent(b)}%`,
                 background: b.pass ? 'var(--rh-green)' : 'var(--rh-red)',
                 transition: 'width 0.5s ease',
               }} />

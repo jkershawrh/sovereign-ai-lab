@@ -7,11 +7,24 @@ export function useProfile(profileId: string) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    setLoading(true)
-    api.profiles.get(profileId)
-      .then(setProfile)
-      .catch(() => setProfile(null))
-      .finally(() => setLoading(false))
+    let cancelled = false
+
+    Promise.resolve()
+      .then(() => {
+        if (!cancelled) setLoading(true)
+        return api.profiles.get(profileId)
+      })
+      .then(profile => {
+        if (!cancelled) setProfile(profile)
+      })
+      .catch(() => {
+        if (!cancelled) setProfile(null)
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false)
+      })
+
+    return () => { cancelled = true }
   }, [profileId])
 
   return { profile, loading }

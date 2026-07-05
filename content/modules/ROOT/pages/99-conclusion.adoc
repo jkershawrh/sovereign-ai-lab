@@ -13,13 +13,20 @@ In this lab you configured and tested a sovereign AI stack:
 
 == Run It Yourself
 
-Fork the repository and run the full stack on a TDX-enabled Intel Xeon:
+Fork the repository and run the local simulation stack:
 
 [source,bash]
 ----
-git clone https://github.com/rhpds/sovereign-ai-lab
+git clone https://github.com/sovereign-ai-lab/sovereign-ai-lab.git
 cd sovereign-ai-lab
 make up
+----
+
+For the guided OpenShift demo path, deploy the full stack to dev-cluster-1:
+
+[source,bash]
+----
+NS=sovereign-ai-lab make deploy-dev-cluster-1
 ----
 
 All components are licensed Apache 2.0 or MIT.

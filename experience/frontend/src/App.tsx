@@ -1,8 +1,11 @@
 import { useState, useCallback } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
+import { Routes, Route } from 'react-router-dom'
 import Header from './components/Header'
 import Footer from './components/Footer'
 import SplashIntro from './components/SplashIntro'
+
+type AppMode = 'slides' | 'demo' | 'lab'
 
 // ─── Act type ──────────────────────────────────────────────────────────────
 type ActEntry = {
@@ -337,6 +340,8 @@ import Act04Routing from './acts/Act04Routing'
 import Act05Policy from './acts/Act05Policy'
 import Act06Verification from './acts/Act06Verification'
 import JurisdictionLab from './lab/JurisdictionLab'
+import Showroom from './pages/Showroom'
+import LeaveBehinds from './pages/LeaveBehinds'
 
 const DEMO_ACTS: ActEntry[] = [
   { id: 'proof-stack', label: 'The Stack', component: Act01ProofStack, nextLabel: 'Your compute →' },
@@ -348,8 +353,8 @@ const DEMO_ACTS: ActEntry[] = [
 ]
 
 // ─── App ───────────────────────────────────────────────────────────────────
-export default function App() {
-  const [mode, setMode] = useState<'slides' | 'demo' | 'lab'>('slides')
+function SovereignExperience({ initialMode = 'slides' }: { initialMode?: AppMode }) {
+  const [mode, setMode] = useState<AppMode>(initialMode)
   const [slide, setSlide] = useState(0)
   const [actIndex, setActIndex] = useState(0)
 
@@ -436,7 +441,11 @@ export default function App() {
             {slide + 1} / {SLIDES.length}
           </span>
           <button
-            onClick={(e) => { e.stopPropagation(); isLastSlide ? enterDemo() : advanceSlide() }}
+            onClick={(e) => {
+              e.stopPropagation()
+              if (isLastSlide) enterDemo()
+              else advanceSlide()
+            }}
             style={{
               background: 'transparent', border: 'none', cursor: 'pointer',
               color: 'var(--text-secondary)',
@@ -490,4 +499,18 @@ export default function App() {
 
   // ─── LAB MODE ─────────────────────────────────────────────────────────
   return <JurisdictionLab onExit={() => setMode('demo')} />
+}
+
+export default function App() {
+  return (
+    <Routes>
+      <Route path="/" element={<SovereignExperience key="root" initialMode="slides" />} />
+      <Route path="/presentation" element={<SovereignExperience key="presentation" initialMode="slides" />} />
+      <Route path="/demo" element={<SovereignExperience key="demo" initialMode="demo" />} />
+      <Route path="/lab" element={<SovereignExperience key="lab" initialMode="lab" />} />
+      <Route path="/showroom" element={<Showroom />} />
+      <Route path="/leave-behind" element={<LeaveBehinds />} />
+      <Route path="*" element={<SovereignExperience key="fallback" initialMode="slides" />} />
+    </Routes>
+  )
 }

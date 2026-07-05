@@ -409,12 +409,12 @@ export default function JurisdictionLab({ onExit }: Props) {
                 <div style={{ padding: 20, background: 'var(--surface-1)', borderRadius: 12, marginBottom: 20 }}>
                   <div style={{ fontSize: 17, fontWeight: 700, fontFamily: 'Red Hat Display, sans-serif', marginBottom: 12 }}>Run it yourself</div>
                   <div style={{ padding: 14, background: 'var(--bg-dark)', borderRadius: 8, fontFamily: 'Red Hat Mono, monospace', fontSize: 14, color: 'var(--rh-green)', lineHeight: 1.8 }}>
-                    git clone https://github.com/rhpds/sovereign-ai-lab<br />
+                    git clone https://github.com/sovereign-ai-lab/sovereign-ai-lab.git<br />
                     cd sovereign-ai-lab<br />
                     make up
                   </div>
                   <div style={{ fontSize: 13, color: 'var(--text-dim)', marginTop: 10 }}>
-                    Requires a TDX-enabled Intel Xeon. All components Apache 2.0 or MIT.
+                    Local simulation works without TDX. Use NS=sovereign-ai-lab make deploy-dev-cluster-1 for the guided OpenShift demo.
                   </div>
                 </div>
 

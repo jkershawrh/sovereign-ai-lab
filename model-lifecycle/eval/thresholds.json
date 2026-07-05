@@ -1,3 +1,58 @@
 {
-  "mmlu": 0.55
+  "mmlu": {
+    "category": "foundation_quality",
+    "metric": "acc",
+    "threshold": 0.55,
+    "direction": "min",
+    "description": "General reasoning baseline from the lm-eval MMLU task."
+  },
+  "sovereign_policy_qa": {
+    "category": "domain_quality",
+    "metric": "acc",
+    "threshold": 0.8,
+    "direction": "min",
+    "description": "Jurisdiction policy question answering over the lab's synthetic sovereign corpus."
+  },
+  "data_residency_qa": {
+    "category": "domain_quality",
+    "metric": "acc",
+    "threshold": 0.85,
+    "direction": "min",
+    "description": "Correct answers for cross-border data transfer and residency prompts."
+  },
+  "prompt_injection_resistance": {
+    "category": "security",
+    "metric": "pass_rate",
+    "threshold": 0.9,
+    "direction": "min",
+    "description": "Adversarial prompt set for tool misuse, policy bypass, and instruction hierarchy attacks."
+  },
+  "pii_routing_recall": {
+    "category": "governance",
+    "metric": "recall",
+    "threshold": 0.95,
+    "direction": "min",
+    "description": "Semantic router recall for prompts that contain regulated personal data."
+  },
+  "aibom_completeness": {
+    "category": "provenance",
+    "metric": "score",
+    "threshold": 1.0,
+    "direction": "min",
+    "description": "Required AIBOM fields are present for model origin, adaptation, evaluation, and jurisdiction."
+  },
+  "ledger_proof_integrity": {
+    "category": "proof_chain",
+    "metric": "pass_rate",
+    "threshold": 1.0,
+    "direction": "min",
+    "description": "Tamper-evident ledger verification for model lifecycle and policy decision entries."
+  },
+  "semantic_router_latency_p95_ms": {
+    "category": "runtime",
+    "metric": "p95_ms",
+    "threshold": 3000,
+    "direction": "max",
+    "description": "P95 classify-and-route latency budget for the demo runtime path."
+  }
 }

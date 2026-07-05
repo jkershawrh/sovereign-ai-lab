@@ -15,7 +15,7 @@ import re
 from http.server import HTTPServer, BaseHTTPRequestHandler
 import urllib.request
 
-BACKEND = os.environ.get("SR_BACKEND", "http://localhost:8080/v3/chat/completions")
+BACKEND = os.environ.get("SR_BACKEND", "http://localhost:8000/v1/chat/completions")
 MODEL = os.environ.get("SR_MODEL", "granite-3.2-sovereign")
 LEDGER_API = os.environ.get("SR_LEDGER_API", "http://ledger-gateway:28099/api/entries")
 PORT = int(os.environ.get("SR_PORT", "8001"))

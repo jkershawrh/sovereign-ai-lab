@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "status": "production",
   "aibom_path": "model-lifecycle/aibom/sovereign-granite-3b.aibom.json",
-  "aibom_hash": "c6135f031b3075167b50a5664dcba76a58cc83c9744771a6f0913908dffbca74",
-  "promotion_ledger_hash": "3f4eb5cf209634955f8aba3f7de2f1f7b1cbffc9cc2b9324a5ebe9055c776113",
+  "aibom_hash": "cca90cb67fd430ea4e922202edc3618fce82ec080cf0ab1f7ae1e1ea3171daa9",
+  "promotion_ledger_hash": "offline-1e8c687a0918c085d6f22b6aaff4009fb360c9234d572a55c95b1d6c",
   "serving_endpoint": "http://localhost:9000/v1",
-  "registered_at": "2026-07-03T19:53:23.875969Z"
+  "registered_at": "2026-07-05T01:48:23.614617Z"
 }
