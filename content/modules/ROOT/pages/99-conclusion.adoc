@@ -59,4 +59,4 @@ We would love to hear your feedback on this lab. Please reach out to your Red Ha
 * *Red Hat* — OpenShift AI, Praxis, OPA integration
 * *Intel* — TDX, Intel Trust Authority, Xeon hardware
 * *IBM Research* — Granite models, ContextForge, SDG Hub
-* *Open Source* — are-immutable-ledger, vLLM Semantic Router
+* *Open Source* — are-immutable-ledger, vLLM Semantic Router, OpenVINO Model Server

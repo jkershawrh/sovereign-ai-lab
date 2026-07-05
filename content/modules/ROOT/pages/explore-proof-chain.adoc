@@ -53,13 +53,13 @@ for e in entries:
     if t.startswith('tdx.'): layer = 'Hardware Trust'
     elif t.startswith('platform.'): layer = 'Platform'
     elif t.startswith('pipeline.') or t.startswith('model.'): layer = 'Models'
-    elif t.startswith('data.'): layer = 'Data'
+    elif t.startswith('data.'): layer = 'Data Governance'
     elif t.startswith('agent.'): layer = 'Agent Control'
-    elif t.startswith('router.'): layer = 'Execution'
-    else: layer = 'Governance'
+    elif t.startswith('router.'): layer = 'Gateway'
+    else: layer = 'Proof Chain'
     layers[layer] = layers.get(layer, 0) + 1
 print('Entries by sovereignty layer:')
-for layer in ['Hardware Trust', 'Platform', 'Models', 'Data', 'Governance', 'Agent Control', 'Execution']:
+for layer in ['Hardware Trust', 'Platform', 'Models', 'Data Governance', 'Proof Chain', 'Agent Control', 'Gateway']:
     count = layers.get(layer, 0)
     bar = '█' * count
     print(f'  {layer:16s} {count:3d}  {bar}')

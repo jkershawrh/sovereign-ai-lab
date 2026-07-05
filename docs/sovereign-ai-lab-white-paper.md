@@ -43,11 +43,11 @@ The lab is organized as seven layers.
 
 Intel TDX provides the hardware-trust story for the dev-cluster-1 path. In a production deployment, attestation should prove that the workload is running inside an expected trust domain on expected hardware, with expected measurements. The lab can also run in simulation mode, where attestation artifacts are representative rather than cryptographic production evidence.
 
-### 2. Platform Control
+### 2. Platform
 
 OpenShift is the canonical guided-demo platform. The local Docker Compose path is useful for development and dry runs, but the presentation-grade path is `make deploy-dev-cluster-1`. OpenShift provides namespace isolation, service wiring, persistent storage, routes, and a realistic path to confidential container operations.
 
-### 3. Model Provenance
+### 3. Models
 
 The model lifecycle creates and records:
 
@@ -65,17 +65,17 @@ The AIBOM is the model's supply-chain artifact. It documents base model identity
 
 OPA policies implement deny-by-default governance. The lab includes jurisdiction profiles for EU, Gulf, Southeast Asia, enterprise, and individual perspectives. The point is not that one policy file can represent every jurisdiction. The point is that residency and use rules become executable controls rather than slideware.
 
-### 5. Runtime Routing
+### 5. Proof Chain
+
+The ledger provides tamper-evident proof of lifecycle and governance events. The lab records representative events such as ingestion completion, synthetic data generation, training completion, evaluation completion, AIBOM registration, model promotion, and policy decisions. The final proof is not any single event. It is the chain that connects model origin, runtime control, policy enforcement, and user-visible behavior.
+
+### 6. Agent Control
 
 The semantic router classifies prompts and routes requests. The local path points to vLLM at `/v1/chat/completions`; the OpenShift path points to OpenVINO Model Server at `/v3/chat/completions`. This distinction matters because demo failures often come from mixing local and cluster inference APIs.
 
-### 6. Gateway and Tool Control
+### 7. Gateway
 
 Praxis and ContextForge represent gateway control and federation. MCP tools are treated as governed surfaces, not invisible side channels. A sovereign AI runtime must control model calls and tool calls because agent behavior can move data, trigger external systems, or bypass intended policy.
-
-### 7. Proof Chain
-
-The ledger provides tamper-evident proof of lifecycle and governance events. The lab records representative events such as ingestion completion, synthetic data generation, training completion, evaluation completion, AIBOM registration, model promotion, and policy decisions. The final proof is not any single event. It is the chain that connects model origin, runtime control, policy enforcement, and user-visible behavior.
 
 ## Benchmark and Assurance Model
 
@@ -149,7 +149,7 @@ The next phase should focus on repeatability and evidence quality:
 
 Sovereign AI is not achieved by moving a model into a private subnet. It is achieved when an operator can own the model path, govern the runtime path, and prove the decision path.
 
-The Sovereign AI Lab gives that story a working shape. It shows the audience where sovereignty lives in the stack: hardware trust, platform control, model provenance, data governance, agent routing, gateway control, and proof. It also gives practitioners a lab they can run, break, inspect, and extend.
+The Sovereign AI Lab gives that story a working shape. It shows the audience where sovereignty lives in the stack: hardware trust, platform, models, data governance, proof chain, agent control, and gateway. It also gives practitioners a lab they can run, break, inspect, and extend.
 
 The central message for a presentation or hands-on lab is simple: the future of governed AI will not be won by unverifiable assurances. It will be won by systems that can show their work.
 

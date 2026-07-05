@@ -75,6 +75,7 @@ ai_model_requirements:
 
 # ─── Application deploy ─────────────────────────────────────────────────────
 
+# NOTE: repo will be mirrored to rhpds/ for production RHDPS deployment
 quickstart_deploy_via_make_repo_url: https://github.com/rhpds/sovereign-ai-lab
 quickstart_deploy_via_make_scm_ref: main
 quickstart_deploy_via_make_directory: infrastructure/helm

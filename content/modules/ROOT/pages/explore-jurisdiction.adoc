@@ -5,7 +5,7 @@
 
 == Learning Objectives
 
-* Explore jurisdiction profiles for EU, Gulf States, and Southeast Asia
+* Explore jurisdiction profiles for EU, Gulf States, Southeast Asia, Enterprise, and Individual
 * Understand how compliance requirements map to the sovereignty stack
 * Test jurisdiction-specific policy configurations
 
@@ -69,7 +69,7 @@ Open the {frontend_url}[Sovereign AI Lab UI^] and navigate to the Lab mode (clic
 
 == Module Summary
 
-* ✓ Explored jurisdiction profiles for 3 regions
+* ✓ Explored jurisdiction profiles for 5 perspectives
 * ✓ Compared compliance requirements across jurisdictions
 * ✓ Understood how the same stack adapts to different sovereignty rules
 

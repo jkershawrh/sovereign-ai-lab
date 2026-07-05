@@ -1,5 +1,7 @@
 # Sovereign AI Lab: Presentation, Demo, and Lab Analysis
 
+**Note:** This analysis was generated against commit 89c5b0c. Several findings have been addressed in subsequent commits. See git log for current state.
+
 Repository analyzed: `sovereign-ai-lab/sovereign-ai-lab`
 Checkout: `89c5b0c` on `main`
 Submodules initialized:
@@ -40,13 +42,13 @@ The project is strongest when framed around the proof chain. The ledger is the c
 
 | Layer | Repo surface | Demo purpose |
 | --- | --- | --- |
-| Hardware trust | `infra/tdx/` | TDX trust domain creation and attestation, real when hardware and Intel Trust Authority are available, simulated otherwise. |
+| Hardware Trust | `infra/tdx/` | TDX trust domain creation and attestation, real when hardware and Intel Trust Authority are available, simulated otherwise. |
 | Platform | `infrastructure/dev-cluster-1/`, `agnosticv/` | OpenShift deployment story for a tenant lab environment. |
-| Model lifecycle | `model-lifecycle/` | Ingest docs, generate synthetic QA, placeholder train/eval, create AIBOM, promote model, register model. |
-| Policy | `infra/opa/policies/` | Deny-by-default data residency, model promotion, model access, and agent lifecycle policies. |
-| Proof chain | `ledger/are-immutable-ledger` plus `ledger/gateway.Dockerfile` | Hash-chained event store and REST gateway for demo integration. |
-| Agent/routing | `inference/semantic-router/` | Demo semantic classifier for sensitive data, prompt injection, and general routing. |
-| Gateway/tools | `gateway/config/`, `gateway/mcp-servers/sovereign-data/` | Praxis/ContextForge concept plus local MCP tools over jurisdiction documents. |
+| Models | `model-lifecycle/` | Ingest docs, generate synthetic QA, placeholder train/eval, create AIBOM, promote model, register model. |
+| Data Governance | `infra/opa/policies/` | Deny-by-default data residency, model promotion, model access, and agent lifecycle policies. |
+| Proof Chain | `ledger/are-immutable-ledger` plus `ledger/gateway.Dockerfile` | Hash-chained event store and REST gateway for demo integration. |
+| Agent Control | `inference/semantic-router/` | Demo semantic classifier for sensitive data, prompt injection, and general routing. |
+| Gateway | `gateway/config/`, `gateway/mcp-servers/sovereign-data/` | Praxis/ContextForge concept plus local MCP tools over jurisdiction documents. |
 | Experience | `experience/frontend/`, `experience/demo/`, `content/` | React presentation/demo/lab UI, FastAPI integration, CLI scenarios, Antora lab guide. |
 
 ## Presentation Arc
@@ -81,7 +83,7 @@ Best guided demo sequence:
 6. Act 4, "Your Agents": run three prompts: sensitive data, general, injection attempt.
 7. Act 5, "Your Policies": run OPA allow/deny examples.
 8. Act 6, "Your Proof": verify the chain, then show writers and entry counts.
-9. Enter the jurisdiction lab and let the audience pick EU, Gulf, Southeast Asia, Enterprise, or Citizen.
+9. Enter the jurisdiction lab and let the audience pick EU, Gulf, Southeast Asia, Enterprise, or Individual.
 
 Recommended talk track:
 

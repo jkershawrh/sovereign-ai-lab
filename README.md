@@ -33,7 +33,7 @@ Seven layers of sovereign AI running on a single Intel Xeon node:
 git clone https://github.com/sovereign-ai-lab/sovereign-ai-lab.git
 cd sovereign-ai-lab
 cp .env.example .env   # fill in ITA_API_KEY, HF_TOKEN
-make up                 # start ledger, OPA, vLLM, semantic router
+make up                 # start postgres, ledger, OPA, vLLM, semantic router
 make attest             # run TDX attestation
 make pipeline           # run model lifecycle pipeline
 make verify-infra       # verify core local infrastructure
@@ -47,7 +47,7 @@ The local path is a simulation-oriented developer workflow. The full guided demo
 NS=sovereign-ai-lab make deploy-dev-cluster-1
 ```
 
-This deploys the ledger, OPA, OVMS, semantic router, Praxis, ContextForge, MCP server, demo API, frontend, required ConfigMaps, and public OpenShift Routes.
+This deploys the namespace, postgres, ledger, ledger-gateway, model conversion, OPA, OVMS, semantic router, Praxis, ContextForge, MCP server, demo API, frontend, required ConfigMaps, and public OpenShift Routes.
 
 ## Presentation Artifacts
 
@@ -62,6 +62,7 @@ This deploys the ledger, OPA, OVMS, semantic router, Praxis, ContextForge, MCP s
 | 28099 | Ledger REST gateway | Infrastructure |
 | 8181 | OPA | Policy |
 | 8080 | OVMS (Granite 3.2 2B) | Models |
+| 8000 | vLLM (local simulation) | Models |
 | 8001 | Semantic router | Agent Control |
 | 9000 | Praxis | Gateway |
 | 4444 | ContextForge | Gateway |

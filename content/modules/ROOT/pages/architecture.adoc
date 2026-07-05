@@ -7,10 +7,10 @@
 |===
 |Port |Service |Document |Purpose
 
-|8080
-|Immutable Ledger (gRPC)
+|28080
+|Immutable Ledger (HTTP health)
 |Doc 1
-|Hash-chained tamper-evident event store
+|Hash-chained tamper-evident event store — health/readiness endpoint (HTTP, not gRPC)
 
 |28099
 |Ledger Gateway (REST)
@@ -26,6 +26,11 @@
 |Sovereign Granite 2B
 |Doc 1
 |OpenVINO Model Server — Granite 3.2 2B INT4 on CPU
+
+|8000
+|vLLM (local)
+|Doc 1
+|vLLM OpenAI-compatible server — local simulation path
 
 |8001
 |Semantic Router
@@ -129,11 +134,11 @@
 |model-lifecycle/promote/promote.py
 
 |`data.residency.policies_verified`
-|Data
+|Data Governance
 |data-governance/verifier
 
 |`data.residency.enforcement_verified`
-|Data
+|Data Governance
 |data-governance/verifier
 
 |`agent.registered`
@@ -145,14 +150,14 @@
 |agent-control/registrar
 
 |`router.general.classified`
-|Execution
+|Gateway
 |semantic-router
 
 |`router.sensitive-data.routed_local`
-|Execution
+|Gateway
 |semantic-router
 
 |`router.injection.blocked`
-|Execution
+|Gateway
 |semantic-router
 |===
