@@ -3,8 +3,11 @@
 
 Welcome to the Sovereign AI Lab. In this lab you will configure, test, and verify a sovereign AI stack running on Intel hardware with Red Hat OpenShift.
 
+The core message is simple: sovereign AI is not just where a model runs. Sovereign AI means you can own it, govern it, and prove what happened.
+
 == What You Will Learn
 
+* How to explain sovereign AI as possess, run, adapt, govern, and prove
 * How Intel TDX provides hardware-level trust for AI workloads
 * How open-weight models with documented provenance replace opaque API dependencies
 * How OPA policies enforce data residency per jurisdiction
@@ -63,4 +66,4 @@ The sovereign AI stack has seven layers, all running on a single Intel Xeon node
 Log in with user `{user}` and password `{password}`.
 
 [.next-nav]
-xref:01-setup.adoc[Next: Access Your Environment →]
+xref:story.adoc[Next: Demo Story & Message ->]

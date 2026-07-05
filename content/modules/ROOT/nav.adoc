@@ -1,5 +1,6 @@
 .Required
 * xref:index.adoc[Welcome]
+* xref:story.adoc[Demo Story & Message]
 * xref:01-setup.adoc[Access Your Environment]
 * xref:02-attestation.adoc[Hardware Trust & Attestation]
 * xref:03-model-provenance.adoc[Model Provenance & AIBOM]

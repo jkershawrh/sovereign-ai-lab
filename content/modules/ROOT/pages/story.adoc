@@ -1,0 +1,112 @@
+= Demo Story & Message
+:navtitle: Demo Story
+
+*Time: ~5 minutes* +
+*Role: Presenter, Lab Proctor, Executive Sponsor*
+
+== The Thesis
+
+Sovereign AI is not a location claim. It is an ownership, control, governance, and proof claim.
+
+The lab should feel like a shift from "trust me" to "show me." Every major action creates evidence that can be inspected later: an attestation report, an AIBOM, a benchmark gate, a policy decision, a routing decision, or a ledger entry.
+
+== The Five Verbs
+
+[cols="1,3,3",options="header"]
+|===
+|Verb |Audience question |Lab evidence
+
+|Possess
+|Do we control the model and artifacts?
+|Open-weight Granite model references, model registry, AIBOM
+
+|Run
+|Does inference run on infrastructure we control?
+|OpenShift/Oberon OVMS path, local vLLM simulation path
+
+|Adapt
+|Can we tune and evaluate the model for our jurisdiction?
+|Ingest, synth, train, eval, benchmark thresholds
+
+|Govern
+|Can our rules control data, models, agents, and tools?
+|OPA policies, semantic router, jurisdiction profiles, MCP gateway
+
+|Prove
+|Can we verify what happened after the fact?
+|TDX attestation, promotion proof, ledger hash chain
+|===
+
+== Presenter Arc
+
+Use this arc for a 20-30 minute demo:
+
+. *Problem:* A system can run inside a region and still depend on opaque APIs, foreign model control, unmanaged tools, or unverifiable policy claims.
+. *Claim:* Sovereignty means possess, run, adapt, govern, and prove.
+. *Stack:* Show the seven layers quickly. Treat each layer as a proof-producing control, not as a component tour.
+. *Proof walk:* Show attestation, AIBOM, benchmark gates, routing, policy, and ledger verification.
+. *Lab handoff:* Change jurisdiction and show that the same stack behaves differently under different governance rules.
+
+== Trust Questions
+
+[cols="2,3,3",options="header"]
+|===
+|Demo moment |Trust question |What to show
+
+|Hardware trust
+|Whose compute is this?
+|TDX attestation report and ledger entry
+
+|Model provenance
+|Whose model is this?
+|AIBOM, base model license, training jurisdiction, benchmark gates
+
+|Policy enforcement
+|Whose rules govern it?
+|OPA allow/deny examples for residency, model promotion, and agent access
+
+|Inference routing
+|Where does the data go?
+|Semantic router classification and local routing decision
+
+|Gateway and MCP
+|What can agents touch?
+|Jurisdiction-local tools and controlled gateway path
+
+|Proof chain
+|Can we prove it later?
+|Ledger entries, chain verification, writer attribution
+|===
+
+== What To Say Out Loud
+
+Use short framing language while moving through the lab:
+
+* "Local is not enough. We need evidence."
+* "This is not just a model call. It is a governed event."
+* "The policy decision is useful now, but the proof is useful later."
+* "The same stack can serve different jurisdictions because the rules are explicit."
+* "Simulation mode is labeled. Production mode replaces simulated evidence with hardware-backed and independently reproducible evidence."
+
+== What To Be Honest About
+
+The lab is intentionally transparent about demo boundaries:
+
+* TDX is real only on compatible hardware with attestation configured; otherwise it is simulated.
+* Benchmark outputs are demo fixtures unless replaced by a real measurement harness and audited datasets.
+* Local vLLM and OpenShift OVMS use different chat endpoints.
+* Demo secrets and `latest` images are acceptable for a guided lab, not for production.
+* Helm/RHDPS packaging remains the next phase.
+
+== Success Criteria
+
+By the end, the audience should be able to say:
+
+* Sovereign AI means possess, run, adapt, govern, and prove.
+* Every layer creates evidence.
+* Policy is executable, not just documented.
+* The ledger connects separate controls into one proof chain.
+* The demo is honest about which evidence is real and which is simulated.
+
+[.next-nav]
+xref:01-setup.adoc[Next: Access Your Environment ->]
