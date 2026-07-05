@@ -14,7 +14,7 @@ LEDGER_HEALTH = "http://localhost:28080"
 LEDGER_API = "http://localhost:28099"
 OPA = "http://localhost:8181"
 VLLM = "http://localhost:8000"
-VLLM_CHAT = f"{VLLM}/v1/chat/completions"
+VLLM_CHAT = f"{VLLM}/v3/chat/completions"
 ROUTER = "http://localhost:8001"
 
 
