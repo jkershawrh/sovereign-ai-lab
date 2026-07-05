@@ -1,5 +1,18 @@
 import { useModel } from '../hooks/useModel'
 import { motion } from 'motion/react'
+import type { Benchmark } from '../lib/types'
+
+function benchmarkPercent(benchmark: Benchmark) {
+  if (benchmark.direction === 'max') {
+    if (benchmark.score <= 0) return 100
+    return Math.min(100, (benchmark.threshold / benchmark.score) * 100)
+  }
+  return Math.min(100, (benchmark.score / Math.max(benchmark.threshold, 0.01)) * 100)
+}
+
+function thresholdLabel(benchmark: Benchmark) {
+  return `${benchmark.direction === 'max' ? '<=' : '>='} ${benchmark.threshold}`
+}
 
 export default function Act03Provenance({ onComplete }: { onComplete?: () => void }) {
   const { aibom, promotion, loading } = useModel()
@@ -7,6 +20,8 @@ export default function Act03Provenance({ onComplete }: { onComplete?: () => voi
   if (loading) return <div style={{ padding: '48px 32px', color: 'var(--text-dim)' }}>Loading model provenance...</div>
 
   const model = aibom?.model
+  const ledgerRecorded = promotion?.ledger_status !== 'offline'
+    && promotion?.ledger_entry_hash !== 'ledger-unreachable'
 
   return (
     <div style={{ padding: '48px 32px', maxWidth: 840, margin: '0 auto' }}>
@@ -61,13 +76,13 @@ export default function Act03Provenance({ onComplete }: { onComplete?: () => voi
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 15, marginBottom: 6 }}>
                   <span style={{ fontWeight: 600 }}>{b.name}</span>
                   <span style={{ fontFamily: 'Red Hat Mono, monospace', color: b.pass ? 'var(--rh-green)' : 'var(--rh-red)' }}>
-                    {b.score.toFixed(3)} / {b.threshold} — {b.pass ? 'PASS' : 'FAIL'}
+                    {b.score.toFixed(3)} {thresholdLabel(b)} - {b.pass ? 'PASS' : 'FAIL'}
                   </span>
                 </div>
                 <div style={{ height: 8, background: 'var(--surface-2)', borderRadius: 4, overflow: 'hidden' }}>
                   <motion.div
                     initial={{ width: 0 }}
-                    animate={{ width: `${Math.min(100, (b.score / Math.max(b.threshold, 0.01)) * 100)}%` }}
+                    animate={{ width: `${benchmarkPercent(b)}%` }}
                     transition={{ delay: 0.7, duration: 0.8 }}
                     style={{ height: '100%', borderRadius: 4, background: b.pass ? 'var(--rh-green)' : 'var(--rh-red)' }}
                   />
@@ -92,7 +107,7 @@ export default function Act03Provenance({ onComplete }: { onComplete?: () => voi
                 AIBOM hash: {aibom?.provenance_hash.slice(0, 20)}...
               </span>
               <span style={{ fontSize: 12, color: 'var(--gpu-amber)' }}>
-                ✓ Recorded in ledger
+                {ledgerRecorded ? 'Ledger recorded' : 'Offline proof'}
               </span>
             </motion.div>
           )}

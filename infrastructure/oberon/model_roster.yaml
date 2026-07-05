@@ -18,7 +18,7 @@ models:
     estimated_ram_gib: 12
     estimated_cpu_cores: 16
     role: Sovereign fine-tuned model for jurisdiction-local inference
-    ovms_service: ovms-sovereign-granite-3b
+    ovms_service: ovms-sovereign-granite
     notes: >
       Dedicated instance for sovereign AI lab. Fine-tuned on
       jurisdiction-local synthetic data via the model lifecycle pipeline.

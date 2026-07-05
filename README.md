@@ -27,23 +27,32 @@ Seven layers of sovereign AI running on a single Intel Xeon node:
 - Python 3.11+
 - Git with LFS
 
-### One-Command Setup (Local)
+### Local Simulation
 
 ```bash
-git clone https://github.com/rhpds/sovereign-ai-lab
+git clone https://github.com/sovereign-ai-lab/sovereign-ai-lab.git
 cd sovereign-ai-lab
 cp .env.example .env   # fill in ITA_API_KEY, HF_TOKEN
-make up-infra           # start ledger, OPA, vLLM, semantic router
+make up                 # start ledger, OPA, vLLM, semantic router
 make attest             # run TDX attestation
 make pipeline           # run model lifecycle pipeline
-make verify-infra       # verify everything (13 checks)
+make verify-infra       # verify core local infrastructure
 ```
+
+The local path is a simulation-oriented developer workflow. The full guided demo stack is the OpenShift/dev-cluster-1 deployment.
 
 ### Deploy to OpenShift (dev-cluster-1)
 
 ```bash
-make deploy-dev-cluster-1      # deploys all services to sovereign-ai-lab namespace
+NS=sovereign-ai-lab make deploy-dev-cluster-1
 ```
+
+This deploys the ledger, OPA, OVMS, semantic router, Praxis, ContextForge, MCP server, demo API, frontend, required ConfigMaps, and public OpenShift Routes.
+
+## Presentation Artifacts
+
+- [White paper](docs/sovereign-ai-lab-white-paper.md) - reference architecture, demo narrative, assurance model, and production hardening path.
+- [Preso/demo/lab analysis](docs/preso-demo-lab-analysis.md) - internal readiness notes and implementation findings.
 
 ## Port Map
 
@@ -90,9 +99,22 @@ make deploy-dev-cluster-1      # deploys all services to sovereign-ai-lab namesp
 ```bash
 make verify-infra       # 13 checks — Doc 1 (infrastructure)
 make verify-gateway     # 6 checks  — Doc 2 (gateway + demo API)
-make verify-experience  # 13 checks — Doc 3 (frontend + lab)
+make verify-experience  # 14 checks — Doc 3 (frontend + lab)
 make verify             # all three
 ```
+
+The model lifecycle benchmark gate is `model-lifecycle/eval/thresholds.json`. It covers foundation quality, sovereign policy QA, data residency QA, prompt-injection resistance, PII routing recall, AIBOM completeness, ledger proof integrity, and semantic-router latency.
+
+## Semantic Router Runtime
+
+The semantic router is configured by environment variables:
+
+| Variable | Local default | OpenShift value |
+|----------|---------------|-----------------|
+| `SR_BACKEND` | `http://localhost:8000/v1/chat/completions` | `http://ovms-sovereign-granite:8080/v3/chat/completions` |
+| `SR_MODEL` | `granite-3.2-sovereign` | `granite-3.2-sovereign` |
+| `SR_LEDGER_API` | `http://ledger-gateway:28099/api/entries` | `http://ledger-gateway:28099/api/entries` |
+| `SR_PORT` | `8001` | `8001` |
 
 ## Jurisdiction Profiles
 
@@ -122,10 +144,9 @@ Seven deny-by-default Rego policies with full test coverage (30/30):
 sovereign-ai-lab/
 ├── Makefile                    # all orchestration targets
 ├── docker-compose.infra.yml   # local: ledger + OPA + inference
-├── docker-compose.gateway.yml # local: gateway services
 ├── .env.example
 ├── ledger/                    # are-immutable-ledger submodule
-├── gateway/                   # praxis + contextforge submodules + config
+├── gateway/                   # Praxis + ContextForge submodules, MCP server, config
 ├── infra/                     # TDX scripts + OPA policies
 ├── model-lifecycle/           # pipeline: ingest → synth → train → eval → AIBOM → promote
 ├── inference/                 # vLLM/OVMS config + semantic router

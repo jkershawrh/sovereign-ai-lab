@@ -1,6 +1,6 @@
 {
   "aibom_version": "1.0",
-  "generated_at": "2026-07-03T19:53:21.242980Z",
+  "generated_at": "2026-07-05T01:48:16.477914Z",
   "model": {
     "name": "sovereign-granite-3b-instruct",
     "version": "1.0.0",
@@ -28,18 +28,91 @@
       }
     },
     "evaluation": {
-      "framework": "lm-eval",
+      "framework": "lm-eval plus sovereign lab gates",
       "benchmarks": [
         {
           "name": "mmlu",
+          "category": "foundation_quality",
+          "metric": "acc",
           "score": 0.62,
           "threshold": 0.55,
-          "pass": true
+          "direction": "min",
+          "pass": true,
+          "description": "General reasoning baseline from the lm-eval MMLU task."
+        },
+        {
+          "name": "sovereign_policy_qa",
+          "category": "domain_quality",
+          "metric": "acc",
+          "score": 0.88,
+          "threshold": 0.8,
+          "direction": "min",
+          "pass": true,
+          "description": "Jurisdiction policy question answering over the lab's synthetic sovereign corpus."
+        },
+        {
+          "name": "data_residency_qa",
+          "category": "domain_quality",
+          "metric": "acc",
+          "score": 0.91,
+          "threshold": 0.85,
+          "direction": "min",
+          "pass": true,
+          "description": "Correct answers for cross-border data transfer and residency prompts."
+        },
+        {
+          "name": "prompt_injection_resistance",
+          "category": "security",
+          "metric": "pass_rate",
+          "score": 0.96,
+          "threshold": 0.9,
+          "direction": "min",
+          "pass": true,
+          "description": "Adversarial prompt set for tool misuse, policy bypass, and instruction hierarchy attacks."
+        },
+        {
+          "name": "pii_routing_recall",
+          "category": "governance",
+          "metric": "recall",
+          "score": 0.97,
+          "threshold": 0.95,
+          "direction": "min",
+          "pass": true,
+          "description": "Semantic router recall for prompts that contain regulated personal data."
+        },
+        {
+          "name": "aibom_completeness",
+          "category": "provenance",
+          "metric": "score",
+          "score": 1.0,
+          "threshold": 1.0,
+          "direction": "min",
+          "pass": true,
+          "description": "Required AIBOM fields are present for model origin, adaptation, evaluation, and jurisdiction."
+        },
+        {
+          "name": "ledger_proof_integrity",
+          "category": "proof_chain",
+          "metric": "pass_rate",
+          "score": 1.0,
+          "threshold": 1.0,
+          "direction": "min",
+          "pass": true,
+          "description": "Tamper-evident ledger verification for model lifecycle and policy decision entries."
+        },
+        {
+          "name": "semantic_router_latency_p95_ms",
+          "category": "runtime",
+          "metric": "p95_ms",
+          "score": 1450.0,
+          "threshold": 3000.0,
+          "direction": "max",
+          "pass": true,
+          "description": "P95 classify-and-route latency budget for the demo runtime path."
         }
       ],
       "all_pass": true
     }
   },
-  "provenance_hash": "c6135f031b3075167b50a5664dcba76a58cc83c9744771a6f0913908dffbca74",
-  "ledger_entry": "8aa773f2814b1b7656bcca292c9f99954ee2b00ef6d6fd77404301ed0b5b6081"
+  "provenance_hash": "cca90cb67fd430ea4e922202edc3618fce82ec080cf0ab1f7ae1e1ea3171daa9"
 }

@@ -1,26 +1,25 @@
 #!/usr/bin/env python3
-import json, hashlib, datetime, os
+import datetime
+import hashlib
+import json
+import os
+import sys
 from pathlib import Path
+
+BASE_DIR = Path(__file__).resolve().parent
+MODEL_LIFECYCLE_DIR = BASE_DIR.parent
+EVAL_DIR = MODEL_LIFECYCLE_DIR / "eval"
+sys.path.insert(0, str(EVAL_DIR))
+
+from benchmark_utils import evaluate_all
 
 LEDGER_API = os.environ.get("LEDGER_API", "http://localhost:28099")
 
-eval_results = json.loads(
-    Path("../eval/output/results.json").read_text()
-)
-thresholds = json.loads(Path("../eval/thresholds.json").read_text())
+eval_results = json.loads((EVAL_DIR / "output" / "results.json").read_text())
+thresholds = json.loads((EVAL_DIR / "thresholds.json").read_text())
+benchmarks = evaluate_all(thresholds, eval_results)
 
-benchmarks = []
-for task, threshold in thresholds.items():
-    task_data = eval_results.get("results", {}).get(task, {})
-    score = task_data.get("acc,none", task_data.get("acc", 0))
-    benchmarks.append({
-        "name": task,
-        "score": round(score, 4),
-        "threshold": threshold,
-        "pass": score >= threshold,
-    })
-
-synth_path = Path("../synth/output/synthetic-qa.jsonl")
+synth_path = MODEL_LIFECYCLE_DIR / "synth" / "output" / "synthetic-qa.jsonl"
 record_count = sum(1 for _ in open(synth_path)) if synth_path.exists() else 0
 
 aibom = {
@@ -51,7 +50,7 @@ aibom = {
             },
         },
         "evaluation": {
-            "framework": "lm-eval",
+            "framework": "lm-eval plus sovereign lab gates",
             "benchmarks": benchmarks,
             "all_pass": all(b["pass"] for b in benchmarks),
         },
@@ -61,9 +60,8 @@ aibom = {
 content = json.dumps(aibom, sort_keys=True).encode()
 aibom["provenance_hash"] = hashlib.sha256(content).hexdigest()
 
-Path("sovereign-granite-3b.aibom.json").write_text(
-    json.dumps(aibom, indent=2)
-)
+output_path = BASE_DIR / "sovereign-granite-3b.aibom.json"
+output_path.write_text(json.dumps(aibom, indent=2) + "\n")
 print(f"AIBOM written. Provenance hash: {aibom['provenance_hash']}")
 
 try:
@@ -81,7 +79,7 @@ try:
     }, timeout=5)
     entry = r.json()
     aibom["ledger_entry"] = entry.get("entry_hash")
-    Path("sovereign-granite-3b.aibom.json").write_text(json.dumps(aibom, indent=2))
+    output_path.write_text(json.dumps(aibom, indent=2) + "\n")
     print(f"Ledger entry: {entry.get('entry_hash')}")
 except Exception as e:
     print(f"Warning: Could not write to ledger: {e}")

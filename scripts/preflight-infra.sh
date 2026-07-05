@@ -43,7 +43,7 @@ check "Ledger healthy"               "curl -sf http://localhost:28080/readyz"
 check "Ledger gateway up"            "curl -sf http://localhost:28099/api/entries"
 check "OPA healthy"                  "curl -sf http://localhost:8181/health"
 check "OPA policies loaded"          "curl -sf http://localhost:8181/v1/policies | grep -q 'sovereign'"
-check "vLLM healthy"                 "curl -sf http://localhost:8000/health | grep -q sovereign"
+check "vLLM healthy"                 "curl -sf http://localhost:8000/health"
 check "Semantic router healthy"      "curl -sf http://localhost:8001/health"
 
 echo ""

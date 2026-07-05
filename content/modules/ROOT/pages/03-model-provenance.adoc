@@ -28,7 +28,9 @@ print()
 print('Benchmarks:')
 for b in m['evaluation']['benchmarks']:
     status = 'PASS' if b['pass'] else 'FAIL'
-    print(f'  {b[\"name\"]}: {b[\"score\"]:.3f} (threshold {b[\"threshold\"]}) [{status}]')
+    comparator = '<=' if b.get('direction') == 'max' else '>='
+    metric = b.get('metric', 'score')
+    print(f'  {b[\"name\"]} ({metric}): {b[\"score\"]:.3f} {comparator} {b[\"threshold\"]} [{status}]')
 "
 ----
 
@@ -42,6 +44,7 @@ d = json.load(sys.stdin)
 print(f'Decision:    {d[\"decision\"].upper()}')
 print(f'AIBOM hash:  {d[\"aibom_hash\"][:24]}...')
 print(f'Ledger hash: {d[\"ledger_entry_hash\"][:24]}...')
+print(f'Ledger mode: {d.get(\"ledger_status\", \"recorded\")}')
 "
 ----
 

@@ -4,6 +4,7 @@ Document 3 end-to-end verification.
 Frontend routes, profiles, and integration with backend.
 """
 import os
+import subprocess
 import sys
 
 import httpx
@@ -26,9 +27,15 @@ def check(name, fn):
 print("=== Document 3 Verification ===\n")
 
 check("npm run build succeeded",
-    lambda: True)
+    lambda: subprocess.run(
+        ["npm", "run", "build"],
+        cwd="experience/frontend",
+        check=True,
+        capture_output=True,
+        text=True,
+    ))
 
-for route in ["/presentation", "/demo", "/showroom", "/leave-behind"]:
+for route in ["/presentation", "/demo", "/lab", "/showroom", "/leave-behind"]:
     check(f"Frontend serves {route}",
         lambda r=route: httpx.get(f"{FRONTEND}{r}", timeout=10).raise_for_status())
 

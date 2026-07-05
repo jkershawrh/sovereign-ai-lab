@@ -18,11 +18,14 @@ print(f"Provenance hash: {aibom['provenance_hash'][:24]}...")
 print("\nEvaluation results:")
 for b in model["evaluation"]["benchmarks"]:
     status = "PASS" if b["pass"] else "FAIL"
-    print(f"  {b['name']}: {b['score']:.3f} (threshold {b['threshold']}) [{status}]")
+    comparator = "<=" if b.get("direction") == "max" else ">="
+    metric = b.get("metric", "score")
+    print(f"  {b['name']} ({metric}): {b['score']:.3f} {comparator} {b['threshold']} [{status}]")
 
 promotion = httpx.get(f"{API}/api/model/promotion", timeout=10).json()
 print(f"\nPromotion:       {promotion['decision'].upper()}")
 print(f"Ledger entry:    {promotion['ledger_entry_hash'][:24]}...")
+print(f"Ledger mode:     {promotion.get('ledger_status', 'recorded')}")
 
 registry = httpx.get(f"{API}/api/model/registry", timeout=10).json()
 print(f"\nRegistry status: {registry['status']}")

@@ -22,11 +22,11 @@ routes:
 
 backends:
   local:
-    endpoint: "http://vllm:8000/v1"
+    endpoint: "http://vllm:8000/v1/chat/completions"
     model: "granite-3.2-sovereign"
 
 ledger:
-  endpoint: "http://ledger-gateway:18099/api/entries"
+  endpoint: "http://ledger-gateway:28099/api/entries"
   agent_id: "semantic-router"
   source_id: "sovereign-ai-lab"
 
