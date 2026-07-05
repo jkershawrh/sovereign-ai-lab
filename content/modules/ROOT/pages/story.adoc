@@ -4,13 +4,30 @@
 *Time: ~5 minutes* +
 *Role: Presenter, Lab Proctor, Executive Sponsor*
 
-== The Thesis
+== Set The Stage
+
+Most AI sovereignty conversations start too late. They ask where inference runs, but they do not ask who controls the model, who governs the data, what agents can touch, or whether anyone can prove what happened after the demo ends.
+
+The audience should understand the opening problem before they see the stack:
+
+* A model can run inside a region and still depend on opaque APIs.
+* Data can stay local while tools, agents, or gateways move sensitive context somewhere else.
+* A policy can exist on paper but still fail to control runtime behavior.
+* An audit can describe intent without proving the actual sequence of events.
+
+The lab sets up a stronger claim: sovereign AI requires evidence at every layer.
+
+== Here Is The Story
 
 Sovereign AI is not a location claim. It is an ownership, control, governance, and proof claim.
 
 The lab should feel like a shift from "trust me" to "show me." Every major action creates evidence that can be inspected later: an attestation report, an AIBOM, a benchmark gate, a policy decision, a routing decision, or a ledger entry.
 
-== The Five Verbs
+The short version is:
+
+> Sovereign AI means you can possess it, run it, adapt it, govern it, and prove what happened.
+
+Those five verbs are the story spine.
 
 [cols="1,3,3",options="header"]
 |===
@@ -37,36 +54,32 @@ The lab should feel like a shift from "trust me" to "show me." Every major actio
 |TDX attestation, promotion proof, ledger hash chain
 |===
 
-== Presenter Arc
+== Here Is How It Is Done
 
-Use this arc for a 20-30 minute demo:
-
-. *Problem:* A system can run inside a region and still depend on opaque APIs, foreign model control, unmanaged tools, or unverifiable policy claims.
-. *Claim:* Sovereignty means possess, run, adapt, govern, and prove.
-. *Stack:* Show the seven layers quickly. Treat each layer as a proof-producing control, not as a component tour.
-. *Proof walk:* Show attestation, AIBOM, benchmark gates, routing, policy, and ledger verification.
-. *Lab handoff:* Change jurisdiction and show that the same stack behaves differently under different governance rules.
-
-== Trust Questions
+The demo is a proof walk through the stack. Each layer answers one trust question and produces one kind of evidence.
 
 [cols="2,3,3",options="header"]
 |===
-|Demo moment |Trust question |What to show
+|Layer |Trust question |Evidence
 
 |Hardware trust
 |Whose compute is this?
 |TDX attestation report and ledger entry
 
-|Model provenance
+|Platform
+|Where is the workload running?
+|OpenShift namespace, services, routes, and rollout status
+
+|Models
 |Whose model is this?
 |AIBOM, base model license, training jurisdiction, benchmark gates
 
-|Policy enforcement
-|Whose rules govern it?
-|OPA allow/deny examples for residency, model promotion, and agent access
+|Data governance
+|Whose rules govern the data?
+|OPA residency decisions and jurisdiction profiles
 
-|Inference routing
-|Where does the data go?
+|Agent control
+|Where does the prompt go?
 |Semantic router classification and local routing decision
 
 |Gateway and MCP
@@ -76,6 +89,43 @@ Use this arc for a 20-30 minute demo:
 |Proof chain
 |Can we prove it later?
 |Ledger entries, chain verification, writer attribution
+|===
+
+== Presenter Arc
+
+Use this arc for a 20-30 minute demo:
+
+. *Set the stage:* A regional endpoint is not the same as sovereign control.
+. *Tell the story:* Sovereignty means possess, run, adapt, govern, and prove.
+. *Show the stack:* Each layer exists because it answers a trust question.
+. *Walk the proof:* Show attestation, AIBOM, benchmark gates, routing, policy, and ledger verification.
+. *Hand off to the lab:* Change jurisdiction and show that the same stack behaves differently under different governance rules.
+
+== Demo Beat Map
+
+[cols="1,3,3",options="header"]
+|===
+|Beat |What the audience learns |What to show
+
+|Set the stage
+|Locality alone does not prove sovereignty.
+|The opening message and seven-layer stack.
+
+|Here is the story
+|Sovereignty is possess, run, adapt, govern, prove.
+|The five verbs and trust questions.
+
+|Here is how it is done
+|Every layer produces evidence.
+|Attestation, AIBOM, OPA, router, MCP, ledger.
+
+|Try it yourself
+|Jurisdiction changes policy behavior.
+|EU, Gulf, Southeast Asia, enterprise, individual profiles.
+
+|Close the loop
+|The proof chain ties the demo together.
+|Ledger verification and writer attribution.
 |===
 
 == What To Say Out Loud
