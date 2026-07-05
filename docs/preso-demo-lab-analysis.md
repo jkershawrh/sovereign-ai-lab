@@ -1,18 +1,21 @@
 # Sovereign AI Lab: Presentation, Demo, and Lab Analysis
 
 Repository analyzed: `jkershawrh/sovereign-ai-lab`
-Checkout: `89c5b0c` on `main`
+Initial checkout: `89c5b0c` on `main`
+Current merged baseline: `b03a094` on `main`
 Submodules initialized:
 
 - `ledger/are-immutable-ledger`: `a1b70fb`
 - `gateway/praxis`: `8cd1059`
 - `gateway/contextforge`: `01278c4`
 
+Update on 2026-07-05: the demo-hardening pass has merged. The sections below preserve the original readiness analysis, with status notes added for items that are now resolved or partially resolved.
+
 ## Executive Readout
 
 This repo is a strong concept demo for "provable AI sovereignty": not just running a model locally, but proving hardware trust, model provenance, policy enforcement, governed routing, local data tools, and tamper-evident evidence.
 
-The narrative is presentation-ready. The interactive frontend builds. The lab guide is coherent and already maps well to a hands-on workshop. The implementation is not yet turnkey from a fresh clone or for RHDPS/AgnosticV deployment. The main risks are deployment wiring, endpoint/name drift, missing local gateway compose, missing Helm chart, and some stale docs/commands.
+The narrative is presentation-ready. The interactive frontend builds. The lab guide is coherent and already maps well to a hands-on workshop. After the merged hardening pass, the OpenShift/Oberon demo path and local simulation path are much more credible. The remaining risks are fresh-clone model artifacts, RHDPS/AgnosticV packaging, and demo-versus-production security separation.
 
 Recommended positioning:
 
@@ -138,12 +141,20 @@ Passed:
 - `npm run build` in `experience/frontend`
 - `docker compose -f docker-compose.infra.yml config`
 
-Failed or not ready:
+Second pass after `b03a094`:
+
+- `python -m compileall scripts experience/demo inference/semantic-router gateway/mcp-servers model-lifecycle`
+- `python model-lifecycle/eval/check-thresholds.py model-lifecycle/eval/output/results.json`
+- `docker compose -f docker-compose.infra.yml config`
+- `bash -n infrastructure/oberon/deploy.sh`
+- `bash -n scripts/run-pipeline.sh`
+
+Initial failures since resolved:
 
 - `npm run lint` fails with two lint errors:
   - `experience/frontend/src/App.tsx`: ternary expression used as a statement in click handler.
   - `experience/frontend/src/hooks/useProfile.ts`: React hooks lint flags synchronous `setLoading(true)` inside an effect.
-- `docker compose -f docker-compose.gateway.yml config` fails because `docker-compose.gateway.yml` does not exist.
+- `docker compose -f docker-compose.gateway.yml config` failed because `docker-compose.gateway.yml` does not exist. This is now treated as an unavailable local overlay rather than the supported path.
 
 Not run:
 
@@ -156,15 +167,19 @@ Not run:
 
 ### 1. Local gateway compose is missing
 
-`Makefile` has `up-gateway` and `down-gateway` targets that reference `docker-compose.gateway.yml`, and `README.md` documents that file, but it is absent.
+At initial analysis, `Makefile` had `up-gateway` and `down-gateway` targets that referenced `docker-compose.gateway.yml`, and `README.md` documented that file, but it was absent.
 
 Impact: a fresh clone cannot run the documented local gateway path.
+
+Status: partially resolved. README no longer advertises a missing gateway compose path, and `up-gateway` now fails with an explicit unavailable message instead of a confusing compose error.
 
 ### 2. `make up` and `make verify` are documented but not implemented
 
 The README and lab conclusion use `make verify` and/or `make up`, but the Makefile exposes `verify-infra`, `verify-gateway`, and `verify-experience`, with no aggregate `verify` or `up`.
 
 Impact: workshop participants will hit immediate command failures.
+
+Status: resolved. `make up` aliases the supported local infrastructure path, and `make verify` runs `verify-infra`, `verify-gateway`, and `verify-experience`.
 
 ### 3. Fresh local clone lacks model artifacts
 
@@ -174,23 +189,29 @@ Impact: local inference startup/preflight is not fresh-clone ready.
 
 ### 4. Semantic router local backend is miswired
 
-`docker-compose.infra.yml` sets only `SR_CONFIG=/config/policy.yaml`. The router implementation does not read `SR_CONFIG`; it falls back to `http://localhost:8080/v3/chat/completions` inside the router container.
+At initial analysis, `docker-compose.infra.yml` set only `SR_CONFIG=/config/policy.yaml`. The router implementation did not read `SR_CONFIG`; it fell back to `http://localhost:8080/v3/chat/completions` inside the router container.
 
 Impact: local routing will likely fail unless `SR_BACKEND` is explicitly set, likely to `http://vllm:8000/v1/chat/completions` for vLLM or to the OVMS `/v3` endpoint if using OVMS.
 
+Status: resolved. Local compose now sets `SR_BACKEND=http://vllm:8000/v1/chat/completions`, `SR_MODEL=granite-3.2-sovereign`, and `SR_LEDGER_API=http://ledger-gateway:28099/api/entries`.
+
 ### 5. vLLM/OVMS and `/v1`/`/v3` endpoint drift
 
-The local compose uses `vllm/vllm-openai`, while README and OpenShift manifests emphasize OVMS. Verification code calls `/v3/chat/completions`; vLLM OpenAI-compatible servers commonly expose `/v1/chat/completions`, while OVMS can expose `/v3`.
+The local compose uses `vllm/vllm-openai`, while README and OpenShift manifests emphasize OVMS. At initial analysis, verification code called `/v3/chat/completions`; vLLM OpenAI-compatible servers commonly expose `/v1/chat/completions`, while OVMS can expose `/v3`.
 
 Impact: demo operators need a single declared local serving mode.
 
+Status: resolved for the supported paths. Local vLLM uses `/v1/chat/completions`; OpenShift OVMS uses `/v3/chat/completions`; verification and docs now reflect that split.
+
 ### 6. OpenShift deployment script has name drift and incomplete apply coverage
 
-`infrastructure/oberon/deploy.sh` waits for `convert-sovereign-granite-3b`, but the job manifest is named `convert-sovereign-granite`. It also waits for deployment/service names with `-3b`, while manifests use `ovms-sovereign-granite`.
+At initial analysis, `infrastructure/oberon/deploy.sh` waited for `convert-sovereign-granite-3b`, but the job manifest was named `convert-sovereign-granite`. It also waited for deployment/service names with `-3b`, while manifests used `ovms-sovereign-granite`.
 
 The script applies namespace, storage, postgres, ledger, ledger-gateway, OPA, conversion job, OVMS, and semantic router. It does not apply the existing `praxis`, `contextforge`, `mcp-server`, `demo-api`, or `frontend` manifests, nor does it create their required ConfigMaps or OpenShift Routes.
 
 Impact: `make deploy-oberon` does not currently match the README claim that it deploys all services.
+
+Status: resolved for the guided demo path. `deploy.sh` now creates required ConfigMaps, applies the full OpenShift demo stack in order, waits for rollouts, creates routes, and prints endpoint/port-forward guidance.
 
 ### 7. Helm chart is missing
 
@@ -204,11 +225,15 @@ Impact: RHDPS tenant deployment is blocked until a Helm chart or compatible make
 
 Impact: `/presentation`, `/demo`, `/showroom`, and `/leave-behind` can return HTTP 200 via SPA fallback but still render the default app entry state, not necessarily the named page.
 
+Status: resolved. `App.tsx` now defines routes for `/`, `/presentation`, `/demo`, `/lab`, `/showroom`, and `/leave-behind`.
+
 ### 9. Verification scripts include optimistic placeholders
 
 `scripts/verify-experience.py` has a check named "npm run build succeeded" that is `lambda: True`, so it does not actually run the build. Some model lifecycle steps fall back to placeholder training/eval artifacts.
 
 Impact: green checks may overstate readiness unless the operator knows what was simulated.
+
+Status: partially resolved. `verify-experience.py` now runs the frontend build, and the model lifecycle benchmark gate covers eight assurance checks. Placeholder model lifecycle artifacts still need replacement for production-grade measurement.
 
 ### 10. Deployment security needs demo/prod separation
 
@@ -232,7 +257,7 @@ Impact: fine for a controlled demo, but not acceptable as a production reference
 ### Before a hands-on lab
 
 1. Add `make up`, `make verify`, and `make down` aggregate targets.
-2. Either add `docker-compose.gateway.yml` or remove/rename gateway targets and docs.
+2. Keep the local gateway compose path clearly marked unavailable unless a real `docker-compose.gateway.yml` is added.
 3. Make the local semantic router backend explicit.
 4. Add a lightweight no-model demo mode or documented model download/seed path.
 5. Turn `verify-experience.py` into a real build and endpoint smoke test.
@@ -287,7 +312,7 @@ Impact: fine for a controlled demo, but not acceptable as a production reference
 
 ## Open Questions
 
-- Is the canonical repo intended to be `jkershawrh/sovereign-ai-lab` or `rhpds/sovereign-ai-lab`? Docs currently use `rhpds`.
+- Is `jkershawrh/sovereign-ai-lab` the long-term canonical repo, or will this move under `rhpds` after the Helm/RHDPS packaging phase?
 - Is the canonical model 2B or 3B? The repo references both Granite 3.2 2B and 3B.
 - Is local serving supposed to use vLLM, OVMS, or both?
 - Should the lab be able to run without TDX and without real model serving, using a fully simulated "workshop mode"?

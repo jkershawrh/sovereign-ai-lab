@@ -75,7 +75,7 @@ ai_model_requirements:
 
 # ─── Application deploy ─────────────────────────────────────────────────────
 
-quickstart_deploy_via_make_repo_url: https://github.com/rhpds/sovereign-ai-lab
+quickstart_deploy_via_make_repo_url: https://github.com/jkershawrh/sovereign-ai-lab
 quickstart_deploy_via_make_scm_ref: main
 quickstart_deploy_via_make_directory: infrastructure/helm
 quickstart_deploy_via_make_params:
@@ -86,7 +86,7 @@ quickstart_deploy_via_make_uninstall_params:
 # ─── Showroom ────────────────────────────────────────────────────────────────
 
 ocp4_workload_showroom_passthrough_user_data: true
-ocp4_workload_showroom_content_url: https://github.com/rhpds/sovereign-ai-lab
+ocp4_workload_showroom_content_url: https://github.com/jkershawrh/sovereign-ai-lab
 ocp4_workload_showroom_content_ref: main
 ocp4_workload_showroom_content_dir: content
 ocp4_workload_showroom_user: user-{{ guid }}
