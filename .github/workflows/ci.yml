@@ -1,0 +1,93 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  python:
+    name: Python checks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: false
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Compile all Python
+        run: python -m compileall scripts experience/demo inference/semantic-router gateway/mcp-servers model-lifecycle
+
+      - name: Benchmark thresholds
+        run: cd model-lifecycle/eval && python check-thresholds.py output/results.json
+
+      - name: JSON artifacts valid
+        run: |
+          for f in model-lifecycle/aibom/sovereign-granite-3b.aibom.json \
+                   model-lifecycle/promote/promotion-decision.json \
+                   model-lifecycle/registry/registry.json \
+                   model-lifecycle/eval/output/results.json \
+                   model-lifecycle/eval/thresholds.json; do
+            python -c "import json; json.load(open('$f'))"
+          done
+
+  frontend:
+    name: Frontend build + lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: false
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install dependencies
+        working-directory: experience/frontend
+        run: npm ci
+
+      - name: Lint
+        working-directory: experience/frontend
+        run: npm run lint
+
+      - name: Build
+        working-directory: experience/frontend
+        run: npm run build
+
+  opa:
+    name: OPA policy tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: false
+
+      - name: Run OPA tests
+        run: |
+          docker run --rm \
+            -v "${{ github.workspace }}/infra/opa/policies:/policies:ro" \
+            openpolicyagent/opa:latest \
+            test /policies -v
+
+  shell:
+    name: Shell syntax
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: false
+
+      - name: Check shell scripts
+        run: |
+          bash -n infrastructure/dev-cluster-1/deploy.sh
+          bash -n scripts/run-pipeline.sh
+          bash -n scripts/preflight-infra.sh
+          bash -n scripts/reset-infra.sh
+          bash -n scripts/write-platform-proof.sh
+          bash -n scripts/write-agent-registration.sh
+          bash -n scripts/write-data-governance.sh
