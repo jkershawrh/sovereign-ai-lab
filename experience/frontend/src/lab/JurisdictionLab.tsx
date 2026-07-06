@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'motion/react'
 import { api } from '../lib/api'
 import ProofChain from '../components/ProofChain'
 import { useLedger } from '../hooks/useLedger'
-import type { JurisdictionProfile, ChainVerification, WriterSummary, RouteResult } from '../lib/types'
+import type { JurisdictionProfile, ChainVerification, RouteResult } from '../lib/types'
 
 // ─── Categories + test data ────────────────────────────────────────────────
 
@@ -108,7 +108,6 @@ export default function JurisdictionLab({ onExit }: Props) {
 
   // Step 4 state
   const [verification, setVerification] = useState<ChainVerification | null>(null)
-  const [writers, setWriters] = useState<WriterSummary | null>(null)
   const [verifying, setVerifying] = useState(false)
 
   useEffect(() => {
@@ -143,9 +142,8 @@ export default function JurisdictionLab({ onExit }: Props) {
   const verify = async () => {
     setVerifying(true)
     try {
-      const [v, w] = await Promise.all([api.ledger.verify(), api.ledger.writers()])
+      const v = await api.ledger.verify()
       setVerification(v)
-      setWriters(w)
     } catch { /* */ }
     finally { setVerifying(false) }
   }
@@ -363,58 +361,96 @@ export default function JurisdictionLab({ onExit }: Props) {
               </motion.div>
             )}
 
-            {/* ─── STEP 4: Your Proof ─── */}
+            {/* ─── STEP 4: What You Proved ─── */}
             {step === 3 && profile && (
               <motion.div key="s3" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
                 <h2 style={{ fontFamily: 'Red Hat Display, sans-serif', fontSize: 26, fontWeight: 700, marginBottom: 6 }}>
-                  Your Proof — {profile.flag} {profile.name}
+                  What You Just Proved — {profile.flag} {profile.name}
                 </h2>
                 <p style={{ fontSize: 15, color: 'var(--text-dim)', lineHeight: 1.7, marginBottom: 24 }}>
-                  Everything you did in this lab — policy evaluations, sovereign inferences, routing decisions — is recorded in the tamper-evident chain. Verify it.
+                  In this session you didn't just see a demo. You exercised a sovereign AI stack and generated real evidence.
                 </p>
 
+                {/* Sovereignty proofs — what the user actually proved */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 24 }}>
+                  {[
+                    { icon: '🔒', title: 'Your data stayed in your jurisdiction', detail: `You tested ${policyCount} residency policies. Sensitive data was denied from leaving your borders. General data was processed locally. Every decision was logged.`, color: '#37a3a3' },
+                    { icon: '🧠', title: 'Your model is open and documented', detail: 'The model that served you has a full AI Bill of Materials — base model, training data, evaluation results, and jurisdiction. It was promoted to production through an OPA policy gate.', color: '#0F62FE' },
+                    { icon: '🛡️', title: 'Your prompts were classified and governed', detail: `You ran ${promptCount} sovereign inferences. Each prompt was classified before reaching the model. Sensitive content was flagged. Injection attempts were blocked. Routing decisions were enforced.`, color: '#5e40be' },
+                    { icon: '⛓️', title: 'Every decision is independently verifiable', detail: 'Every policy evaluation, every routing decision, every inference request produced a hash-chained entry in a tamper-evident ledger. Modify any entry and the chain breaks.', color: '#F5A623' },
+                  ].map((proof, i) => (
+                    <motion.div key={proof.title}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: i * 0.1 }}
+                      style={{ padding: 20, borderRadius: 12, background: 'var(--surface-1)', borderLeft: `4px solid ${proof.color}` }}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
+                        <span style={{ fontSize: 20 }}>{proof.icon}</span>
+                        <span style={{ fontSize: 17, fontWeight: 700, fontFamily: 'Red Hat Display, sans-serif' }}>{proof.title}</span>
+                      </div>
+                      <div style={{ fontSize: 14, color: 'var(--text-dim)', lineHeight: 1.6 }}>
+                        {proof.detail}
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+
+                {/* Verify button */}
                 <motion.button onClick={verify} disabled={verifying} whileTap={{ scale: 0.97 }}
                   style={{ background: '#ee0000', border: 'none', color: '#fff', padding: '12px 32px', borderRadius: 8, cursor: 'pointer', fontSize: 16, fontWeight: 600, display: 'block', margin: '0 auto 24px' }}>
-                  {verifying ? 'Verifying...' : 'Verify All Chains'}
+                  {verifying ? 'Verifying...' : 'Verify the proof chain'}
                 </motion.button>
 
                 {verification && (
                   <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ type: 'spring', stiffness: 200, damping: 20 }}
-                    style={{ padding: 28, borderRadius: 14, textAlign: 'center', background: 'rgba(245,166,35,0.06)', border: '2px solid var(--gpu-amber)', marginBottom: 24 }}>
-                    <div style={{ fontSize: 32, fontWeight: 800, fontFamily: 'Red Hat Display, sans-serif', color: verification.all_valid ? 'var(--rh-green)' : 'var(--rh-red)', marginBottom: 8 }}>
-                      {verification.all_valid ? 'CHAIN INTACT' : 'CHAIN BROKEN'}
+                    style={{ padding: 24, borderRadius: 14, textAlign: 'center', background: verification.all_valid ? 'rgba(99,153,61,0.08)' : 'rgba(238,0,0,0.08)', border: `2px solid ${verification.all_valid ? 'var(--rh-green)' : 'var(--rh-red)'}`, marginBottom: 24 }}>
+                    <div style={{ fontSize: 28, fontWeight: 800, fontFamily: 'Red Hat Display, sans-serif', color: verification.all_valid ? 'var(--rh-green)' : 'var(--rh-red)', marginBottom: 8 }}>
+                      {verification.all_valid ? 'SOVEREIGNTY VERIFIED' : 'VERIFICATION FAILED'}
                     </div>
-                    <div style={{ fontSize: 15, color: 'var(--text-dim)', marginBottom: 12 }}>
-                      {verification.chains.length} chains · {verification.chains.reduce((s, c) => s + c.entries_checked, 0)} entries · {policyCount} policy decisions · {promptCount} inferences
-                    </div>
-                    <div style={{ fontSize: 14, color: 'var(--gpu-amber)', fontFamily: 'Red Hat Mono, monospace' }}>
-                      You just configured and tested sovereign AI for {profile.name}.<br />
-                      Every decision is in the chain. The proof is yours.
+                    <div style={{ fontSize: 15, color: 'var(--text-secondary)', lineHeight: 1.6, maxWidth: 600, margin: '0 auto' }}>
+                      {verification.all_valid
+                        ? `Every governance decision from this session is recorded and intact. No entry has been tampered with. This is what sovereign AI looks like for ${profile.name}.`
+                        : 'The proof chain has been compromised. One or more entries have been modified.'}
                     </div>
                   </motion.div>
                 )}
 
-                {writers && (
-                  <div style={{ padding: 18, background: 'var(--surface-1)', borderRadius: 12, marginBottom: 20 }}>
-                    <div style={{ fontSize: 11, fontFamily: 'Red Hat Mono, monospace', color: 'var(--text-dim)', marginBottom: 10, textTransform: 'uppercase' }}>Session Writers ({writers.total} entries)</div>
-                    {Object.entries(writers.writers).sort(([, a], [, b]) => (b as number) - (a as number)).map(([w, c]) => (
-                      <div key={w} style={{ display: 'flex', justifyContent: 'space-between', padding: '4px 0', borderBottom: '1px solid var(--border)', fontSize: 13 }}>
-                        <span style={{ fontFamily: 'Red Hat Mono, monospace', color: 'var(--text-secondary)' }}>{w}</span>
-                        <span style={{ color: 'var(--text-dim)' }}>{c as number}</span>
+                {/* What this means for you */}
+                <div style={{ padding: 20, background: 'var(--surface-1)', borderRadius: 12, marginBottom: 20 }}>
+                  <div style={{ fontSize: 17, fontWeight: 700, fontFamily: 'Red Hat Display, sans-serif', marginBottom: 12 }}>
+                    What this means for {profile.name === 'Individual' ? 'you' : profile.name}
+                  </div>
+                  <div style={{ fontSize: 15, color: 'var(--text-secondary)', lineHeight: 1.7 }}>
+                    {profile.key_concern}
+                  </div>
+                  <div style={{ fontSize: 15, color: 'var(--text-primary)', lineHeight: 1.7, marginTop: 12 }}>
+                    The stack you just tested provides exactly this. Open-weight models you can possess. Policies that enforce your rules. A proof chain that satisfies your regulators. All of it running on infrastructure you control.
+                  </div>
+                </div>
+
+                {/* Next steps — not developer commands */}
+                <div style={{ padding: 20, background: 'var(--surface-1)', borderRadius: 12, marginBottom: 20 }}>
+                  <div style={{ fontSize: 17, fontWeight: 700, fontFamily: 'Red Hat Display, sans-serif', marginBottom: 12 }}>
+                    What happens next
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                    {[
+                      { step: 'Take the proof with you', detail: 'The root hash from this session is your receipt. It proves every decision that was made — and that none were altered.' },
+                      { step: 'Run it on your infrastructure', detail: 'This entire stack is open source (Apache 2.0). It runs on a single Intel Xeon node. No GPU required.' },
+                      { step: 'Configure it for your jurisdiction', detail: `The ${profile.name} profile you tested is one of five. The OPA policies, AIBOM requirements, and compliance labels adapt to your regulatory environment.` },
+                      { step: 'Scale to production', detail: 'GPU confidential compute, multi-node inference, Kagenti agent lifecycle management, and OpenShell process-level sandboxing are the next layers.' },
+                    ].map((s, i) => (
+                      <div key={i} style={{ display: 'flex', gap: 12, padding: '10px 0', borderBottom: i < 3 ? '1px solid var(--border)' : 'none' }}>
+                        <div style={{ width: 24, height: 24, borderRadius: '50%', background: 'var(--gpu-amber)', color: 'var(--bg-dark)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 700, flexShrink: 0, marginTop: 2 }}>
+                          {i + 1}
+                        </div>
+                        <div>
+                          <div style={{ fontSize: 15, fontWeight: 600 }}>{s.step}</div>
+                          <div style={{ fontSize: 13, color: 'var(--text-dim)', lineHeight: 1.5, marginTop: 2 }}>{s.detail}</div>
+                        </div>
                       </div>
                     ))}
-                  </div>
-                )}
-
-                <div style={{ padding: 20, background: 'var(--surface-1)', borderRadius: 12, marginBottom: 20 }}>
-                  <div style={{ fontSize: 17, fontWeight: 700, fontFamily: 'Red Hat Display, sans-serif', marginBottom: 12 }}>Run it yourself</div>
-                  <div style={{ padding: 14, background: 'var(--bg-dark)', borderRadius: 8, fontFamily: 'Red Hat Mono, monospace', fontSize: 14, color: 'var(--rh-green)', lineHeight: 1.8 }}>
-                    git clone https://github.com/sovereign-ai-lab/sovereign-ai-lab.git<br />
-                    cd sovereign-ai-lab<br />
-                    make up
-                  </div>
-                  <div style={{ fontSize: 13, color: 'var(--text-dim)', marginTop: 10 }}>
-                    Local simulation works without TDX. Use NS=sovereign-ai-lab make deploy-dev-cluster-1 for the guided OpenShift demo.
                   </div>
                 </div>
 
