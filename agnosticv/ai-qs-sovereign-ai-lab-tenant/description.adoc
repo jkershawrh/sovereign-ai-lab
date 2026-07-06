@@ -1,0 +1,25 @@
+Deploys the Sovereign AI Lab on a shared base cluster via the OpenShift Sandbox API. Demonstrates provable AI sovereignty across seven layers — hardware trust, platform, models, data governance, proof chain, agent control, and gateway — running entirely on Intel Xeon CPU with zero GPU dependency.
+
+== What Gets Deployed
+
+* *Immutable Ledger* -- Tamper-evident hash-chained event store (Rust gRPC + Python REST gateway)
+* *PostgreSQL* -- Ledger storage backend
+* *OPA Policy Engine* -- 7 deny-by-default sovereignty policies (GDPR, Gulf, PDPA, model promotion, agent lifecycle)
+* *OVMS Granite 3.2 2B* -- OpenVINO Model Server serving a sovereign fine-tuned model on CPU
+* *Semantic Router* -- Prompt classification, injection detection, and jurisdictional routing
+* *Praxis Gateway* -- AI-aware reverse proxy with filter pipeline
+* *ContextForge* -- MCP/A2A tool federation gateway
+* *Sovereign Data MCP Server* -- Jurisdiction-local document knowledge base
+* *Demo API (FastAPI)* -- Integration layer serving real data from all components
+* *Frontend* -- React presentation + demo + lab experience (slides → demo → lab)
+* *Showroom* -- Antora-based guided lab walkthrough
+
+== Models Available (CPU Path — Xeon 6)
+
+* granite-3.2-sovereign — Granite 3.2 2B Instruct (INT4, OpenVINO, local OVMS)
+
+== Partnership Story
+
+* *Intel* (Trust): Xeon 6 with TDX confidential computing — hardware-attested trust domains
+* *IBM* (Models): Granite open-weight models with full AIBOM provenance
+* *Red Hat* (Platform): OpenShift AI + OPA + Praxis + ContextForge — sovereign governance stack

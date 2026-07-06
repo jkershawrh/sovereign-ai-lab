@@ -1,0 +1,20 @@
+---
+# -------------------------------------------------------------------
+# Dev overrides — single user for testing
+# -------------------------------------------------------------------
+ocp4_workload_gitops_bootstrap_health_ignore: true
+ocp4_workload_showroom_antora_enable_dev_mode: "true"
+
+# -------------------------------------------------------------------
+# Babylon meta variables
+# -------------------------------------------------------------------
+__meta__:
+  deployer:
+    scm_ref: main
+
+  sandboxes:
+    - kind: OcpSandbox
+      cloud_selector:
+        purpose: dev
+        cloud: cnv-dedicated-shared
+        lab: ai-qs-sovereign-ai-lab

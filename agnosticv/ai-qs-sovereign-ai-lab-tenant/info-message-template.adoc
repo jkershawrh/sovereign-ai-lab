@@ -1,0 +1,38 @@
+ifndef::showroom_primary_view_url[]
+Please wait.
+
+When your environment is deployed, access information will be displayed below.
+endif::[]
+
+ifdef::showroom_primary_view_url[]
+
+== Lab Instructions
+
+[cols="1,3"]
+|===
+| Showroom URL | {showroom_primary_view_url}
+|===
+
+ifdef::user[]
+== OpenShift Access Information
+[cols="1,3"]
+|===
+| OpenShift Console URL | {openshift_console_url}
+| OpenShift API         | {openshift_api_url}
+| Username              | {user}
+| Password              | {password}
+| Default Namespace     | {user}-sovereign-ai-lab
+| User oc login Command | oc login --insecure-skip-tls-verify=false --username {user} --password {password} {openshift_api_url}
+|===
+
+== Service URLs
+[cols="1,3"]
+|===
+| Frontend (Presentation + Demo + Lab) | {frontend_url}
+| Demo API                              | {demo_api_url}
+| Ledger Gateway                        | {ledger_url}
+| OPA Policy Engine                     | {opa_url}
+|===
+endif::[]
+
+endif::[]
