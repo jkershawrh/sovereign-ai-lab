@@ -82,3 +82,6 @@ scenarios:
 
 deploy-dev-cluster-1:
 	@bash infrastructure/dev-cluster-1/deploy.sh
+
+smoke-test:
+	@python3 scripts/smoke-test.py
