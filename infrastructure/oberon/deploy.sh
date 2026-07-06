@@ -1,7 +1,7 @@
 #!/bin/bash
 set -euo pipefail
 
-KUBECONFIG="${KUBECONFIG:-$HOME/.kube/config-dev-cluster-1}"
+KUBECONFIG="${KUBECONFIG:-$HOME/.kube/config}"
 NS="${NS:-sovereign-ai-lab}"
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
@@ -36,12 +36,7 @@ create_configmaps() {
   echo "[3/12] Creating ConfigMaps..."
 
   oc create configmap postgres-init -n "$NS" \
-    --from-file=01-init.sql="$REPO_ROOT/ledger/are-immutable-ledger/migrations/001_init.sql" \
-    --from-file=02-correlation-id.sql="$REPO_ROOT/ledger/are-immutable-ledger/migrations/002_correlation_id_text.sql" \
-    --from-file=03-permissions.sql="$REPO_ROOT/ledger/are-immutable-ledger/demo/postgres-init/03-permissions.sql" \
-    --from-file=04-hash-index.sql="$REPO_ROOT/ledger/are-immutable-ledger/migrations/003_hash_index.sql" \
-    --from-file=05-input-hash.sql="$REPO_ROOT/ledger/are-immutable-ledger/migrations/004_input_hash.sql" \
-    --from-file=06-writer-signature.sql="$REPO_ROOT/ledger/are-immutable-ledger/migrations/005_writer_signature.sql" \
+    --from-file="$REPO_ROOT/infrastructure/postgres-init/" \
     --dry-run=client -o yaml | oc apply -f -
 
   oc create configmap opa-policies -n "$NS" \
