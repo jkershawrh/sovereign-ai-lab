@@ -374,10 +374,10 @@ export default function JurisdictionLab({ onExit }: Props) {
                 {/* Sovereignty proofs — what the user actually proved */}
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 24 }}>
                   {[
-                    { icon: '🔒', title: 'Your data stayed in your jurisdiction', detail: `You tested ${policyCount} residency policies. Sensitive data was denied from leaving your borders. General data was processed locally. Every decision was logged.`, color: '#37a3a3' },
-                    { icon: '🧠', title: 'Your model is open and documented', detail: 'The model that served you has a full AI Bill of Materials — base model, training data, evaluation results, and jurisdiction. It was promoted to production through an OPA policy gate.', color: '#0F62FE' },
-                    { icon: '🛡️', title: 'Your prompts were classified and governed', detail: `You ran ${promptCount} sovereign inferences. Each prompt was classified before reaching the model. Sensitive content was flagged. Injection attempts were blocked. Routing decisions were enforced.`, color: '#5e40be' },
-                    { icon: '⛓️', title: 'Every decision is independently verifiable', detail: 'Every policy evaluation, every routing decision, every inference request produced a hash-chained entry in a tamper-evident ledger. Modify any entry and the chain breaks.', color: '#F5A623' },
+                    { title: 'Your data stayed in your jurisdiction', detail: `You tested ${policyCount} residency policies. Sensitive data was denied from leaving your borders. General data was processed locally. Every decision was logged.`, color: '#37a3a3' },
+                    { title: 'Your model is open and documented', detail: 'The model that served you has a full AI Bill of Materials — base model, training data, evaluation results, and jurisdiction. It was promoted to production through an OPA policy gate.', color: '#0F62FE' },
+                    { title: 'Your prompts were classified and governed', detail: `You ran ${promptCount} sovereign inferences. Each prompt was classified before reaching the model. Sensitive content was flagged. Injection attempts were blocked. Routing decisions were enforced.`, color: '#5e40be' },
+                    { title: 'Every decision is independently verifiable', detail: 'Every policy evaluation, every routing decision, every inference request produced a hash-chained entry in a tamper-evident ledger. Modify any entry and the chain breaks.', color: '#F5A623' },
                   ].map((proof, i) => (
                     <motion.div key={proof.title}
                       initial={{ opacity: 0, y: 10 }}
@@ -385,9 +385,8 @@ export default function JurisdictionLab({ onExit }: Props) {
                       transition={{ delay: i * 0.1 }}
                       style={{ padding: 20, borderRadius: 12, background: 'var(--surface-1)', borderLeft: `4px solid ${proof.color}` }}
                     >
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
-                        <span style={{ fontSize: 20 }}>{proof.icon}</span>
-                        <span style={{ fontSize: 17, fontWeight: 700, fontFamily: 'Red Hat Display, sans-serif' }}>{proof.title}</span>
+                      <div style={{ fontSize: 17, fontWeight: 700, fontFamily: 'Red Hat Display, sans-serif', marginBottom: 6 }}>
+                        {proof.title}
                       </div>
                       <div style={{ fontSize: 14, color: 'var(--text-dim)', lineHeight: 1.6 }}>
                         {proof.detail}
