@@ -1,0 +1,14 @@
+---
+# -------------------------------------------------------------------
+# Prod overrides — Demo environment
+# -------------------------------------------------------------------
+__meta__:
+  deployer:
+    scm_ref: main
+
+  sandboxes:
+    - kind: OcpSandbox
+      cloud_selector:
+        purpose: prod
+        cloud: cnv-dedicated-shared
+        lab: ai-qs-sovereign-ai-lab
