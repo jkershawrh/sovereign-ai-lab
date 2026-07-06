@@ -326,8 +326,48 @@ const SLIDES: ((props: { advance: () => void }) => React.ReactNode)[] = [
     </div>
   ),
 
-  // Slide 5: The sovereign stack — interactive progressive reveal
-  // This is a stateful slide — click reveals each layer one at a time, then shows all
+  // Slide 5: This is already happening — Norway
+  () => (
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', textAlign: 'center', padding: '0 60px' }}>
+      <motion.h2
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        style={{ fontFamily: 'Red Hat Display, sans-serif', fontSize: 44, fontWeight: 800, lineHeight: 1.15, marginBottom: 32 }}
+      >
+        This is <span style={{ color: 'var(--gpu-amber)' }}>already happening.</span>
+      </motion.h2>
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.5 }}
+        style={{ padding: 28, borderRadius: 14, background: 'var(--surface-1)', borderLeft: '4px solid var(--rh-red)', maxWidth: 700, textAlign: 'left' }}
+      >
+        <div style={{ fontSize: 20, fontWeight: 700, fontFamily: 'Red Hat Display, sans-serif', marginBottom: 12 }}>
+          Telenor + Red Hat: Norway Sovereign AI Factory
+        </div>
+        <div style={{ fontSize: 16, color: 'var(--text-secondary)', lineHeight: 1.7, marginBottom: 16 }}>
+          At MWC 2026, Telenor and Red Hat unveiled a sovereign AI factory running entirely in Norwegian data centers.
+          OpenShift AI provides the platform. NVIDIA provides the compute. All data stays within Norway's borders.
+          EU/EEA regulatory compliance is built in, not bolted on.
+        </div>
+        <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginBottom: 16 }}>
+          {['OpenShift AI', 'Norwegian data centers', 'NVIDIA compute', 'GDPR / EU AI Act', 'Renewable energy'].map(tag => (
+            <span key={tag} style={{ padding: '4px 14px', borderRadius: 20, fontSize: 12, background: 'rgba(238,0,0,0.1)', color: 'var(--rh-red)', fontFamily: 'Red Hat Mono, monospace' }}>
+              {tag}
+            </span>
+          ))}
+        </div>
+        <div style={{ fontSize: 15, fontStyle: 'italic', color: 'var(--gpu-amber)', lineHeight: 1.6 }}>
+          "Sovereignty is fundamentally about control — allowing organizations to maintain command over their trajectory, regardless of geopolitical shifts."
+        </div>
+        <div style={{ fontSize: 12, color: 'var(--text-dim)', marginTop: 8 }}>
+          — Hans Roth, Red Hat
+        </div>
+      </motion.div>
+    </div>
+  ),
+
+  // Slide 6: The sovereign stack — interactive progressive reveal
   SovereignStackSlide,
 
 ]
