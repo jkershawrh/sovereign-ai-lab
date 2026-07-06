@@ -3,6 +3,10 @@ set -euo pipefail
 
 KUBECONFIG="${KUBECONFIG:-$HOME/.kube/config}"
 NS="${NS:-sovereign-ai-lab}"
+SOVEREIGN_MODE="${SOVEREIGN_MODE:-full}"  # full = local OVMS | maas = remote LiteLLM
+MAAS_ENDPOINT="${MAAS_ENDPOINT:-https://litellm.example.com/v1/chat/completions}"
+MAAS_MODEL="${MAAS_MODEL:-granite-3-2-8b-instruct}"
+LITELLM_API_KEY="${LITELLM_API_KEY:-}"
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 CONVERSION_JOB="convert-sovereign-granite"
@@ -16,9 +20,14 @@ cleanup() {
 }
 trap cleanup EXIT
 
-echo "=== Sovereign AI Lab -- dev-cluster-1 Deployment ==="
+echo "=== Sovereign AI Lab Deployment ==="
 echo "Cluster: $(oc whoami --show-server 2>/dev/null || echo 'not logged in')"
 echo "Namespace: $NS"
+echo "Mode: $SOVEREIGN_MODE"
+if [ "$SOVEREIGN_MODE" = "maas" ]; then
+  echo "MAAS endpoint: $MAAS_ENDPOINT"
+  echo "MAAS model: $MAAS_MODEL"
+fi
 echo ""
 
 apply_manifest() {
@@ -178,8 +187,12 @@ print_endpoints() {
 echo "[1/12] Creating namespace..."
 oc create namespace "$NS" --dry-run=client -o yaml | oc apply -f -
 
-echo "[2/12] Creating model cache PVC..."
-apply_manifest "$SCRIPT_DIR/model-cache-pvc.yaml"
+if [ "$SOVEREIGN_MODE" = "full" ]; then
+  echo "[2/12] Creating model cache PVC..."
+  apply_manifest "$SCRIPT_DIR/model-cache-pvc.yaml"
+else
+  echo "[2/12] Skipping model cache PVC (MAAS mode)..."
+fi
 
 create_configmaps
 
@@ -197,14 +210,25 @@ rollout ledger-gateway 60s
 apply_manifest "$SCRIPT_DIR/opa.yaml"
 rollout opa 60s
 
-wait_for_conversion_job
+if [ "$SOVEREIGN_MODE" = "full" ]; then
+  wait_for_conversion_job
 
-echo "[8/12] Deploying OVMS..."
-apply_manifest "$SCRIPT_DIR/ovms-sovereign-granite.yaml"
-rollout "$OVMS_DEPLOYMENT" 300s
+  echo "[8/12] Deploying OVMS..."
+  apply_manifest "$SCRIPT_DIR/ovms-sovereign-granite.yaml"
+  rollout "$OVMS_DEPLOYMENT" 300s
+else
+  echo "[7/12] Skipping model conversion (MAAS mode)..."
+  echo "[8/12] Skipping OVMS deployment (MAAS mode)..."
+fi
 
 echo "[9/12] Deploying routing and gateway services..."
-apply_manifest "$SCRIPT_DIR/semantic-router.yaml"
+# In MAAS mode, patch the semantic router to point at MAAS
+if [ "$SOVEREIGN_MODE" = "maas" ]; then
+  sed "s|http://ovms-sovereign-granite:8080/v3/chat/completions|${MAAS_ENDPOINT}|g; s|granite-3.2-sovereign|${MAAS_MODEL}|g" \
+    "$SCRIPT_DIR/semantic-router.yaml" | sed "s/namespace: sovereign-ai-lab/namespace: ${NS}/g" | oc apply -f -
+else
+  apply_manifest "$SCRIPT_DIR/semantic-router.yaml"
+fi
 rollout semantic-router 60s
 apply_manifest "$SCRIPT_DIR/praxis.yaml"
 rollout praxis 120s
