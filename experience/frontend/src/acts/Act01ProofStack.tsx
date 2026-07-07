@@ -1,5 +1,5 @@
-import ArchitectureDiagram from '../components/ArchitectureDiagram'
+import ArchitectureFlow from '../components/ArchitectureFlow'
 
 export default function Act01ProofStack({ onComplete }: { onComplete?: () => void }) {
-  return <ArchitectureDiagram onComplete={onComplete} />
+  return <ArchitectureFlow onComplete={onComplete} />
 }
