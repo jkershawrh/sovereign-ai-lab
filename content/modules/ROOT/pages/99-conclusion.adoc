@@ -26,7 +26,7 @@ For the guided OpenShift demo path, deploy the full stack to dev-cluster-1:
 
 [source,bash]
 ----
-NS=sovereign-ai-lab make deploy-dev-cluster-1
+NS=sovereign-ai-lab make deploy-cluster
 ----
 
 All components are licensed Apache 2.0 or MIT.

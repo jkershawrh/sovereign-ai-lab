@@ -21,23 +21,23 @@ tag: main
 
 requirements_content:
   collections:
-  - name: https://github.com/agnosticd/namespaced_workloads.git
+  - name: https://github.com/example/namespaced_workloads.git
     type: git
     version: '{{ tag }}'
-  - name: https://github.com/rhpds/rhpds.litellm_virtual_keys.git
+  - name: https://github.com/example/litellm_virtual_keys.git
     type: git
     version: '{{ tag }}'
-  - name: https://github.com/agnosticd/ai_quickstarts.git
+  - name: https://github.com/example/ai_quickstarts.git
     type: git
     version: '{{ tag }}'
-  - name: https://github.com/agnosticd/showroom.git
+  - name: https://github.com/example/showroom.git
     type: git
     version: v1.6.8
 
 workloads:
 - agnosticd.namespaced_workloads.ocp4_workload_tenant_keycloak_user
 - agnosticd.namespaced_workloads.ocp4_workload_tenant_namespace
-- rhpds.litellm_virtual_keys.ocp4_workload_litellm_virtual_keys
+- litellm_virtual_keys.ocp4_workload_litellm_virtual_keys
 - agnosticd.ai_quickstarts.quickstart_deploy_via_make
 - agnosticd.showroom.ocp4_workload_showroom
 
@@ -92,8 +92,8 @@ ai_model_requirements:
 
 # ─── Application deploy ─────────────────────────────────────────────────────
 
-# NOTE: repo will be mirrored to rhpds/ for production RHDPS deployment
-quickstart_deploy_via_make_repo_url: https://github.com/rhpds/sovereign-ai-lab
+# NOTE: repo will be mirrored to example/ for production RHDP deployment
+quickstart_deploy_via_make_repo_url: https://github.com/example/sovereign-ai-lab
 quickstart_deploy_via_make_scm_ref: main
 quickstart_deploy_via_make_directory: infrastructure/helm
 quickstart_deploy_via_make_params:
@@ -108,7 +108,7 @@ quickstart_deploy_via_make_uninstall_params:
 # ─── Showroom ────────────────────────────────────────────────────────────────
 
 ocp4_workload_showroom_passthrough_user_data: true
-ocp4_workload_showroom_content_url: https://github.com/rhpds/sovereign-ai-lab
+ocp4_workload_showroom_content_url: https://github.com/example/sovereign-ai-lab
 ocp4_workload_showroom_content_ref: main
 ocp4_workload_showroom_content_dir: content
 ocp4_workload_showroom_user: user-{{ guid }}
@@ -165,10 +165,10 @@ __meta__:
       primaryBU: Hybrid_Platforms
     parameters: []
   deployer:
-    scm_url: https://github.com/agnosticd/agnosticd-v2
+    scm_url: https://github.com/example/agnosticd-v2
     scm_ref: main
     execution_environment:
-      image: quay.io/agnosticd/ee-multicloud:chained-2026-02-23
+      image: quay.io/sovereign-ai-lab/ee-multicloud:chained-2026-02-23
       pull: missing
     actions:
       destroy:

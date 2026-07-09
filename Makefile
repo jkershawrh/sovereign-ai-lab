@@ -1,6 +1,6 @@
 .PHONY: up down verify up-infra down-infra preflight-infra attest pipeline verify-infra reset-infra seed \
        up-gateway down-gateway preflight-gateway verify-gateway verify-experience scenarios \
-       deploy-dev-cluster-1
+       deploy-cluster
 
 # ─── Infrastructure (Doc 1) ──────────────────────────────────────────────────
 
@@ -45,7 +45,7 @@ seed:
 
 up-gateway: up-infra
 	@if [ ! -f docker-compose.gateway.yml ]; then \
-		echo "docker-compose.gateway.yml is not present yet. Use make deploy-dev-cluster-1 for the full demo stack, or add the gateway compose file before running up-gateway."; \
+		echo "docker-compose.gateway.yml is not present yet. Use make deploy-cluster for the full demo stack, or add the gateway compose file before running up-gateway."; \
 		exit 1; \
 	fi
 	@echo "Starting gateway services..."
@@ -80,7 +80,7 @@ scenarios:
 
 # ─── dev-cluster-1 (DEV) ───────────────────────────────────────────────────────────
 
-deploy-dev-cluster-1:
+deploy-cluster:
 	@bash infrastructure/dev-cluster-1/deploy.sh
 
 smoke-test:

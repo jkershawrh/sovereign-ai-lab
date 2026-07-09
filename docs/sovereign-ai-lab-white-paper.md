@@ -45,7 +45,7 @@ Intel TDX provides the hardware-trust story for the dev-cluster-1 path. In a pro
 
 ### 2. Platform
 
-OpenShift is the canonical guided-demo platform. The local Docker Compose path is useful for development and dry runs, but the presentation-grade path is `make deploy-dev-cluster-1`. OpenShift provides namespace isolation, service wiring, persistent storage, routes, and a realistic path to confidential container operations.
+OpenShift is the canonical guided-demo platform. The local Docker Compose path is useful for development and dry runs, but the presentation-grade path is `make deploy-cluster`. OpenShift provides namespace isolation, service wiring, persistent storage, routes, and a realistic path to confidential container operations.
 
 ### 3. Models
 
@@ -101,7 +101,7 @@ In a production program, these gates should be replaced or extended with represe
 The recommended demo sequence is:
 
 1. Show the architecture and the claim: sovereign AI means owned, governed, and provable.
-2. Deploy the OpenShift path with `NS=sovereign-ai-lab make deploy-dev-cluster-1`.
+2. Deploy the OpenShift path with `NS=sovereign-ai-lab make deploy-cluster`.
 3. Open the frontend route and walk through slides, demo, and lab.
 4. Show attestation as either real TDX evidence or explicitly simulated evidence.
 5. Open the AIBOM and show benchmark gates, provenance hash, and promotion decision.

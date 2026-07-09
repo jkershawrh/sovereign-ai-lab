@@ -44,7 +44,7 @@ The local path is a simulation-oriented developer workflow. The full guided demo
 ### Deploy to OpenShift (dev-cluster-1)
 
 ```bash
-NS=sovereign-ai-lab make deploy-dev-cluster-1
+NS=sovereign-ai-lab make deploy-cluster
 ```
 
 This deploys the namespace, postgres, ledger, ledger-gateway, model conversion, OPA, OVMS, semantic router, Praxis, ContextForge, MCP server, demo API, frontend, required ConfigMaps, and public OpenShift Routes.

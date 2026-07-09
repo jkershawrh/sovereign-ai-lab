@@ -44,3 +44,6 @@ infra/tdx/attestation-summary.txt
 
 # Leave-behind generated output
 experience/leave-behind/output/
+
+# Claude Code local settings
+.claude/settings.local.json

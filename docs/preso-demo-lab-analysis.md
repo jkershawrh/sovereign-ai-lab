@@ -192,7 +192,7 @@ Impact: demo operators need a single declared local serving mode.
 
 The script applies namespace, storage, postgres, ledger, ledger-gateway, OPA, conversion job, OVMS, and semantic router. It does not apply the existing `praxis`, `contextforge`, `mcp-server`, `demo-api`, or `frontend` manifests, nor does it create their required ConfigMaps or OpenShift Routes.
 
-Impact: `make deploy-dev-cluster-1` does not currently match the README claim that it deploys all services.
+Impact: `make deploy-cluster` does not currently match the README claim that it deploys all services.
 
 ### 7. Helm chart is missing
 
@@ -289,7 +289,7 @@ Impact: fine for a controlled demo, but not acceptable as a production reference
 
 ## Open Questions
 
-- Is the canonical repo intended to be `sovereign-ai-lab/sovereign-ai-lab` or `rhpds/sovereign-ai-lab`? Docs currently use `rhpds`.
+- Is the canonical repo intended to be `sovereign-ai-lab/sovereign-ai-lab` or `example/sovereign-ai-lab`? Docs currently use `rhpds`.
 - Is the canonical model 2B or 3B? The repo references both Granite 3.2 2B and 3B.
 - Is local serving supposed to use vLLM, OVMS, or both?
 - Should the lab be able to run without TDX and without real model serving, using a fully simulated "workshop mode"?

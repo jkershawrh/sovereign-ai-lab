@@ -10,7 +10,7 @@ content:
 
 ui:
   bundle:
-    url: https://github.com/rhpds/rhdp_showroom_theme/releases/download/latest/ui-bundle.zip
+    url: https://github.com/example/rhdp_showroom_theme/releases/download/latest/ui-bundle.zip
     snapshot: true
 
 output:

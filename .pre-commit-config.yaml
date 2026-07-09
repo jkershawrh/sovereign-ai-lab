@@ -1,0 +1,20 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.6.0
+    hooks:
+      - id: check-added-large-files
+        args: ['--maxkb=500']
+      - id: check-merge-conflict
+      - id: detect-private-key
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.18.4
+    hooks:
+      - id: gitleaks
+  - repo: local
+    hooks:
+      - id: no-internal-refs
+        name: Block internal infrastructure references
+        entry: bash -c 'if grep -rn --include="*.py" --include="*.md" --include="*.yaml" --include="*.yml" --include="*.adoc" --include="*.tsx" --include="*.ts" --include="*.json" --include="*.sh" -i -E "(example-domain|prod-cluster-1|sovereign-ai-lab|jkershaw@redhat|sovereign-ai-lab|maas-rhdp|redhatworkshops\.io)" "$@" 2>/dev/null; then echo ""; echo "ERROR: Internal infrastructure references detected. Remove before committing."; exit 1; fi'
+        language: system
+        types: [file]
+        pass_filenames: true
