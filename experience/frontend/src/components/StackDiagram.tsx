@@ -7,7 +7,7 @@ const LAYERS: { key: LayerName; label: string; component: string }[] = [
   { key: 'models', label: 'Models', component: 'Granite (open weights)' },
   { key: 'data', label: 'Data', component: 'OPA + Residency' },
   { key: 'governance', label: 'Governance', component: 'are-immutable-ledger' },
-  { key: 'agentControl', label: 'Agent Control', component: 'Kagenti' },
+  { key: 'agentControl', label: 'Agent Control', component: 'Rossoctl' },
   { key: 'execution', label: 'Execution', component: 'Praxis + ContextForge' },
 ]
 

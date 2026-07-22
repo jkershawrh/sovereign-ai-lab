@@ -72,7 +72,66 @@ if grep -q "tdx_host_platform" /proc/cpuinfo 2>/dev/null; then
   echo "CPU flag: tdx_host_platform confirmed"
 fi
 
+# TDX Trust Domain detection (kata-cc / TDX guest VM)
+# When running inside a TD, the guest kernel exposes /dev/tdx_guest or
+# /dev/tdx-guest and (on newer kernels) configfs-tsm at
+# /sys/kernel/config/tsm/report.  The Intel TDX DCAP quote-generation
+# service is reachable from within the sandbox-containers namespace.
+TD_ENCLAVE="false"
+TDX_GUEST_DEV=""
+DCAP_SERVICE="http://intel-tdx-dcap.openshift-sandboxed-containers-operator:4050"
+
+if [ -e /dev/tdx_guest ]; then
+  TD_ENCLAVE="true"
+  TDX_GUEST_DEV="/dev/tdx_guest"
+  echo "TDX Trust Domain detected via $TDX_GUEST_DEV"
+elif [ -e /dev/tdx-guest ]; then
+  TD_ENCLAVE="true"
+  TDX_GUEST_DEV="/dev/tdx-guest"
+  echo "TDX Trust Domain detected via $TDX_GUEST_DEV"
+elif [ -d /sys/kernel/config/tsm/report ]; then
+  TD_ENCLAVE="true"
+  TDX_GUEST_DEV="configfs-tsm"
+  echo "TDX Trust Domain detected via configfs-tsm (/sys/kernel/config/tsm/report)"
+fi
+
+if [ "$TD_ENCLAVE" = "true" ]; then
+  ATTESTATION_LEVEL="td-enclave"
+  echo "Attestation level elevated to td-enclave (running inside kata-cc TD)"
+
+  # Attempt to obtain a real DCAP quote from the TD guest device or DCAP service
+  if [ "$TDX_GUEST_DEV" = "configfs-tsm" ]; then
+    echo "Generating TD quote via configfs-tsm..."
+    TSM_REPORT_DIR=$(mktemp -d /sys/kernel/config/tsm/report/attest-XXXXXX 2>/dev/null || true)
+    if [ -n "$TSM_REPORT_DIR" ] && [ -d "$TSM_REPORT_DIR" ]; then
+      echo -n "sovereign-ai-lab" > "$TSM_REPORT_DIR/inblob" 2>/dev/null || true
+      if [ -f "$TSM_REPORT_DIR/outblob" ]; then
+        TD_QUOTE=$(cat "$TSM_REPORT_DIR/outblob" | base64 -w0 2>/dev/null || cat "$TSM_REPORT_DIR/outblob" | base64 2>/dev/null)
+        QUOTE_TYPE="td-configfs-tsm"
+        echo "TD quote generated via configfs-tsm"
+      fi
+      rmdir "$TSM_REPORT_DIR" 2>/dev/null || true
+    fi
+  elif [ -n "$TDX_GUEST_DEV" ]; then
+    echo "Attempting DCAP quote via $DCAP_SERVICE ..."
+    DCAP_RESPONSE=$(curl -s --connect-timeout 5 -X POST "$DCAP_SERVICE/quote" \
+      -H "Content-Type: application/json" \
+      -d '{"report_data": "c292ZXJlaWduLWFpLWxhYg=="}' 2>/dev/null || true)
+    if [ -n "$DCAP_RESPONSE" ] && echo "$DCAP_RESPONSE" | python3 -c "import sys,json; json.load(sys.stdin)['quote']" &>/dev/null; then
+      TD_QUOTE=$(echo "$DCAP_RESPONSE" | python3 -c "import sys,json; print(json.load(sys.stdin)['quote'])")
+      QUOTE_TYPE="td-dcap"
+      echo "TD DCAP quote obtained from intel-tdx-dcap service"
+    else
+      echo "DCAP service unavailable; falling back to device-level evidence"
+      TD_QUOTE="TD_ENCLAVE_EVIDENCE_$(date +%s)"
+      QUOTE_TYPE="td-device-present"
+    fi
+  fi
+fi
+
 # ── Step 2: Generate quote ───────────────────────────────────────────────
+# Skip if we already obtained a quote from TD-enclave detection above
+if [ -z "${TD_QUOTE:-}" ]; then
 if command -v tdx_quote_generator &>/dev/null; then
   echo "Generating real TDX quote..."
   TD_QUOTE=$(tdx_quote_generator 2>/dev/null)
@@ -81,6 +140,7 @@ if command -v tdx_quote_generator &>/dev/null; then
 else
   TD_QUOTE="PLATFORM_EVIDENCE_$(date +%s)"
   QUOTE_TYPE="platform-measured"
+fi
 fi
 
 QUOTE_HASH=$(echo -n "$TD_QUOTE" | shasum -a 256 2>/dev/null | cut -d' ' -f1 || echo -n "$TD_QUOTE" | sha256sum | cut -d' ' -f1)
@@ -109,6 +169,7 @@ else
   "tdx_module": "$TDX_MODULE",
   "tdx_cpu": $TDX_CPU,
   "sgx_present": $SGX_PRESENT,
+  "td_enclave": $TD_ENCLAVE,
   "pcr_count": $(echo "$PCR_JSON" | python3 -c "import sys,json; print(len(json.load(sys.stdin)))" 2>/dev/null || echo 0)
 }
 REPORT
@@ -123,6 +184,7 @@ Attestation Level:  $ATTESTATION_LEVEL
 TCB Status:         $TCB_STATUS
 Quote Hash:         $QUOTE_HASH
 Quote Type:         $QUOTE_TYPE
+TD Enclave:         $TD_ENCLAVE
 TDX Module:         $TDX_MODULE
 TDX CPU Flag:       $TDX_CPU
 SGX Devices:        $SGX_PRESENT
@@ -146,6 +208,7 @@ d = {
     'tdx_module': '${TDX_MODULE}',
     'tdx_cpu': '${TDX_CPU}' == 'true',
     'sgx_present': '${SGX_PRESENT}' == 'true',
+    'td_enclave': '${TD_ENCLAVE}' == 'true',
     'pcr_digest': '${PCR_DIGEST}',
 }
 print(json.dumps(json.dumps(d)))

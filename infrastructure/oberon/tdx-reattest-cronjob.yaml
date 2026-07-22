@@ -20,6 +20,7 @@ spec:
           labels:
             app: tdx-reattest
         spec:
+          runtimeClassName: kata-cc
           restartPolicy: OnFailure
           containers:
             - name: reattest

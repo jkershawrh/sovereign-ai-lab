@@ -8,5 +8,8 @@
   },
   "jurisdiction": {
     "approved_regions": ["local"]
+  },
+  "storage": {
+    "required_encryption": true
   }
 }

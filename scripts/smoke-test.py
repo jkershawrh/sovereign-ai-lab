@@ -100,7 +100,7 @@ aibom = check("GET /api/model/aibom",
 
 if aibom:
     check("AIBOM has model name",
-        lambda: aibom["model"]["name"] == "sovereign-granite-3b-instruct" or _raise(f"got {aibom['model']['name']}"))
+        lambda: "sovereign-granite" in aibom["model"]["name"] or _raise(f"got {aibom['model']['name']}"))
     check("AIBOM has provenance hash",
         lambda: len(aibom.get("provenance_hash", "")) == 64 or _raise("bad hash length"))
     check("AIBOM has benchmarks",

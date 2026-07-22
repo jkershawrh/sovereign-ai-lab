@@ -438,7 +438,7 @@ export default function JurisdictionLab({ onExit }: Props) {
                       { step: 'Take the proof with you', detail: 'The root hash from this session is your receipt. It proves every decision that was made — and that none were altered.' },
                       { step: 'Run it on your infrastructure', detail: 'This entire stack is open source (Apache 2.0). It runs on a single Intel Xeon node. No GPU required.' },
                       { step: 'Configure it for your jurisdiction', detail: `The ${profile.name} profile you tested is one of five. The OPA policies, AIBOM requirements, and compliance labels adapt to your regulatory environment.` },
-                      { step: 'Scale to production', detail: 'GPU confidential compute, multi-node inference, Kagenti agent lifecycle management, and OpenShell process-level sandboxing are the next layers.' },
+                      { step: 'Scale to production', detail: 'GPU confidential compute, multi-node inference, Rossoctl agent lifecycle management, and OpenShell process-level sandboxing are the next layers.' },
                     ].map((s, i) => (
                       <div key={i} style={{ display: 'flex', gap: 12, padding: '10px 0', borderBottom: i < 3 ? '1px solid var(--border)' : 'none' }}>
                         <div style={{ width: 24, height: 24, borderRadius: '50%', background: 'var(--gpu-amber)', color: 'var(--bg-dark)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 700, flexShrink: 0, marginTop: 2 }}>

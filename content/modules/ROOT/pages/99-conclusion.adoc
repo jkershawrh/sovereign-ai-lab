@@ -44,7 +44,7 @@ All components are licensed Apache 2.0 or MIT.
 |llm-d distributes serving across a cluster
 
 |Agent Lifecycle
-|Kagenti operator ships as part of Red Hat AI H2 2026
+|Rossoctl operator ships as part of Red Hat AI H2 2026
 
 |Agent Sandbox
 |OpenShell (NVIDIA + Red Hat) for process-level enforcement

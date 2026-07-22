@@ -6,6 +6,9 @@ import os
 import sys
 from pathlib import Path
 
+REPO_ROOT = Path(__file__).resolve().parent.parent.parent
+ATTESTATION_REPORT = REPO_ROOT / "infra" / "tdx" / "attestation-report.json"
+
 BASE_DIR = Path(__file__).resolve().parent
 MODEL_LIFECYCLE_DIR = BASE_DIR.parent
 EVAL_DIR = MODEL_LIFECYCLE_DIR / "eval"
@@ -56,6 +59,12 @@ aibom = {
         },
     },
 }
+
+if ATTESTATION_REPORT.exists():
+    att_bytes = ATTESTATION_REPORT.read_bytes()
+    att_hash = hashlib.sha256(att_bytes).hexdigest()
+    aibom["model"]["adaptation"]["training_environment"]["attestation_hash"] = att_hash
+    print(f"Attestation binding: {att_hash}")
 
 content = json.dumps(aibom, sort_keys=True).encode()
 aibom["provenance_hash"] = hashlib.sha256(content).hexdigest()
