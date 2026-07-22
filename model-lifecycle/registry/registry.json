@@ -1,5 +1,5 @@
 {
-  "name": "sovereign-granite-3b-instruct",
+  "name": "sovereign-granite-2b-instruct",
   "version": "1.0.0",
   "status": "production",
   "aibom_path": "model-lifecycle/aibom/sovereign-granite-3b.aibom.json",

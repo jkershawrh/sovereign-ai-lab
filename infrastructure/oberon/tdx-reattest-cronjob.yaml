@@ -23,13 +23,51 @@ spec:
           restartPolicy: OnFailure
           containers:
             - name: reattest
-              image: quay.io/sovereign-ai-lab/sovereign-demo-api:latest
-              command: ["bash", "/scripts/reattest-cron.sh"]
+              image: quay.io/redhat-gpte/sovereign-demo-api:latest
+              command: ["/bin/bash", "-c"]
+              args:
+                - |
+                  LEDGER_API="${LEDGER_API:-http://ledger-gateway:28099}"
+                  TIMESTAMP=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+
+                  if command -v tdx_quote_generator &>/dev/null; then
+                    TD_QUOTE=$(tdx_quote_generator 2>/dev/null)
+                    QUOTE_TYPE="real"
+                  else
+                    TD_QUOTE="SIMULATED_QUOTE_$(date +%s)"
+                    QUOTE_TYPE="simulated"
+                  fi
+
+                  QUOTE_HASH=$(echo -n "$TD_QUOTE" | sha256sum | cut -d' ' -f1)
+                  TCB_STATUS="UpToDate-simulated"
+
+                  python3 -c "
+                  import json, urllib.request
+                  body = json.dumps({
+                      'entry_type': 'tdx.attestation.completed',
+                      'agent_id': 'infra/tdx/reattest-cronjob',
+                      'content': json.dumps({
+                          'tcb_status': '${TCB_STATUS}',
+                          'quote_hash': '${QUOTE_HASH}',
+                          'timestamp': '${TIMESTAMP}',
+                          'quote_type': '${QUOTE_TYPE}',
+                          'source': 'periodic-reattestation'
+                      }),
+                      'content_type': 'application/json',
+                      'source_id': 'sovereign-ai-lab',
+                  }).encode()
+                  req = urllib.request.Request('${LEDGER_API}/api/entries', data=body,
+                                               headers={'Content-Type': 'application/json'})
+                  try:
+                      resp = json.loads(urllib.request.urlopen(req, timeout=10).read())
+                      print(f'Re-attestation logged: {resp.get(\"entry_hash\", \"unknown\")[:24]}...')
+                  except Exception as e:
+                      print(f'Ledger write failed: {e}')
+                      exit(1)
+                  "
               env:
                 - name: LEDGER_API
                   value: "http://ledger-gateway:28099"
-                - name: LOG_DIR
-                  value: "/tmp"
               securityContext:
                 allowPrivilegeEscalation: false
                 capabilities:
@@ -41,15 +79,3 @@ spec:
                 limits:
                   cpu: 250m
                   memory: 256Mi
-              volumeMounts:
-                - name: scripts
-                  mountPath: /scripts
-                  readOnly: true
-                - name: tdx
-                  mountPath: /workspace/infra/tdx
-          volumes:
-            - name: scripts
-              configMap:
-                name: reattest-scripts
-            - name: tdx
-              emptyDir: {}

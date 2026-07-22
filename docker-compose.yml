@@ -1,0 +1,14 @@
+include:
+  - docker-compose.infra.yml
+  - docker-compose.gateway.yml
+
+services:
+  frontend:
+    build:
+      context: ./experience/frontend
+      dockerfile: Dockerfile
+    ports:
+      - "9001:80"
+    depends_on:
+      demo-api:
+        condition: service_started

@@ -26,11 +26,11 @@ aibom = {
     "aibom_version": "1.0",
     "generated_at": datetime.datetime.utcnow().isoformat() + "Z",
     "model": {
-        "name": "sovereign-granite-3b-instruct",
+        "name": "sovereign-granite-2b-instruct",
         "version": "1.0.0",
         "base_model": {
-            "name": "ibm-granite/granite-3.2-3b-instruct",
-            "source": "https://huggingface.co/ibm-granite/granite-3.2-3b-instruct",
+            "name": "ibm-granite/granite-3.2-2b-instruct",
+            "source": "https://huggingface.co/ibm-granite/granite-3.2-2b-instruct",
             "license": "Apache-2.0",
         },
         "adaptation": {

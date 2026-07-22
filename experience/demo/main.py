@@ -7,8 +7,11 @@ import logging
 import os
 import subprocess
 
+from datetime import datetime
+
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
 import httpx
 
 logger = logging.getLogger(__name__)
@@ -227,3 +230,40 @@ async def get_profile(profile_id: str):
     if not path.exists():
         raise HTTPException(404, f"Profile not found: {profile_id}")
     return json.loads(path.read_text())
+
+
+# ─── Leave-behind generation ───────────────────────────────────────────────
+
+@app.get("/api/generate-leave-behind")
+async def generate_leave_behind(profile: str = "eu"):
+    from pathlib import Path
+
+    script = Path(f"{WORKSPACE}/experience/leave-behind/generate.py")
+    if not script.exists():
+        raise HTTPException(500, "Leave-behind generator not found.")
+
+    result = subprocess.run(
+        ["python3", str(script), profile],
+        capture_output=True, text=True, cwd=WORKSPACE,
+    )
+    if result.returncode != 0:
+        raise HTTPException(500, f"Generation failed: {result.stderr}")
+
+    output_dir = Path(f"{WORKSPACE}/experience/leave-behind/output")
+    pdf_path = output_dir / f"{profile}-leave-behind.pdf"
+    md_path = output_dir / f"{profile}-leave-behind.md"
+
+    if pdf_path.exists():
+        return FileResponse(
+            str(pdf_path),
+            media_type="application/pdf",
+            filename=f"{profile}-leave-behind.pdf",
+        )
+    elif md_path.exists():
+        return FileResponse(
+            str(md_path),
+            media_type="text/markdown",
+            filename=f"{profile}-leave-behind.md",
+        )
+    else:
+        raise HTTPException(500, "Generation produced no output.")

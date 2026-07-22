@@ -1,0 +1,56 @@
+services:
+  # ─── MCP & Context ──────────────────────────────────────────────────────────
+
+  sovereign-data-mcp:
+    build:
+      context: ./gateway/mcp-servers/sovereign-data
+    ports:
+      - "8090:8090"
+    volumes:
+      - ./model-lifecycle/ingest/sample-docs:/docs:ro
+
+  contextforge:
+    image: ghcr.io/ibm/mcp-context-forge:latest
+    ports:
+      - "4444:4444"
+    env_file: gateway/config/contextforge.env
+    depends_on:
+      ledger:
+        condition: service_healthy
+
+  # ─── Gateway routing ────────────────────────────────────────────────────────
+
+  praxis:
+    build:
+      context: ./gateway/praxis
+    ports:
+      - "9000:9000"
+      - "9901:9901"
+    volumes:
+      - ./gateway/config/praxis.yaml:/config/praxis.yaml:ro
+    depends_on:
+      prompt-adapter:
+        condition: service_started
+      ledger:
+        condition: service_healthy
+
+  # ─── Experience API ─────────────────────────────────────────────────────────
+
+  demo-api:
+    build:
+      context: ./experience/demo
+    ports:
+      - "9099:9099"
+    volumes:
+      - .:/workspace:ro
+    working_dir: /workspace
+    environment:
+      LEDGER_GATEWAY: "http://ledger-gateway:28099"
+      OPA_ENDPOINT: "http://opa:8181/v1/data/sovereign"
+      ROUTER_ENDPOINT: "http://prompt-adapter:8001"
+      WORKSPACE: "/workspace"
+    depends_on:
+      prompt-adapter:
+        condition: service_started
+      ledger:
+        condition: service_healthy
