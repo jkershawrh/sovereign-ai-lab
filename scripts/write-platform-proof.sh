@@ -29,7 +29,7 @@ print(json.dumps(json.dumps({
     'node': '$NODE',
     'runtime': '$RUNTIME',
     'timestamp': '$TIMESTAMP',
-    'services_verified': ['postgres', 'ledger', 'ledger-gateway', 'opa', 'ovms', 'semantic-router']
+    'services_verified': ['postgres', 'ledger', 'ledger-gateway', 'opa', 'ovms', 'prompt-adapter']
 })))
 ")
 

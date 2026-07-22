@@ -89,23 +89,49 @@ services:
       ledger:
         condition: service_healthy
 
-  semantic-router:
+  prompt-adapter:
     build:
-      context: ./inference/semantic-router
-      dockerfile: Dockerfile
+      context: ./gcl
+      dockerfile: prompt-adapter/Dockerfile
     ports: ["8001:8001"]
-    volumes:
-      - ./inference/semantic-router/policy.yaml:/config/policy.yaml:ro
     environment:
       SR_BACKEND: "http://vllm:8000/v1/chat/completions"
       SR_MODEL: "granite-3.2-sovereign"
       SR_LEDGER_API: "http://ledger-gateway:28099/api/entries"
       SR_PORT: "8001"
+      GCL_OPA_ENDPOINT: "http://opa:8181/v1/data/sovereign/data_residency/allow"
+      GCL_FORCE_DETERMINISTIC: "true"
+      GCL_RUNTIME_MODE: "standalone-test"
+      GCL_LEDGER_URL: ""
     depends_on:
       ledger:
         condition: service_healthy
       vllm:
         condition: service_started
+
+  # --- Periodic TDX re-attestation -------------------------------------------
+
+  tdx-reattest:
+    image: alpine:3.20
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        apk add --no-cache bash curl python3 coreutils
+        while true; do
+          echo "[$(date -u +%Y-%m-%dT%H:%M:%SZ)] Running TDX re-attestation..."
+          bash /workspace/infra/tdx/attest.sh || echo "re-attestation failed"
+          echo "[$(date -u +%Y-%m-%dT%H:%M:%SZ)] Sleeping 300s until next cycle"
+          sleep 300
+        done
+    volumes:
+      - ./infra/tdx:/workspace/infra/tdx
+      - ./.env:/workspace/.env:ro
+    working_dir: /workspace
+    environment:
+      LEDGER_API: "http://ledger-gateway:28099"
+    depends_on:
+      ledger:
+        condition: service_healthy
 
 volumes:
   pgdata:

@@ -18,7 +18,8 @@ expected_writers = [
     "infra/tdx/attest.sh",
     "model-lifecycle/aibom/generate.py",
     "model-lifecycle/promote/promote.py",
-    "semantic-router",
+    "governed-cognitive-loop",
+    "demo-api/opa-bridge",
 ]
 missing = [w for w in expected_writers if w not in writers["writers"]]
 if missing:

@@ -179,7 +179,7 @@ print_endpoints() {
   echo "  oc port-forward svc/ledger-gateway 28099:28099 -n $NS &"
   echo "  oc port-forward svc/opa 8181:8181 -n $NS &"
   echo "  oc port-forward svc/${OVMS_DEPLOYMENT} 8000:8080 -n $NS &"
-  echo "  oc port-forward svc/semantic-router 8001:8001 -n $NS &"
+  echo "  oc port-forward svc/prompt-adapter 8001:8001 -n $NS &"
   echo "  oc port-forward svc/demo-api 9099:9099 -n $NS &"
   echo "  oc port-forward svc/frontend 9001:9001 -n $NS &"
 }
@@ -229,7 +229,7 @@ if [ "$SOVEREIGN_MODE" = "maas" ]; then
 else
   apply_manifest "$SCRIPT_DIR/semantic-router.yaml"
 fi
-rollout semantic-router 60s
+rollout prompt-adapter 60s
 apply_manifest "$SCRIPT_DIR/praxis.yaml"
 rollout praxis 120s
 apply_manifest "$SCRIPT_DIR/contextforge.yaml"

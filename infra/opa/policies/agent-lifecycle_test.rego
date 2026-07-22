@@ -24,9 +24,23 @@ test_allow_terminate if {
 	}
 }
 
-test_deny_no_spiffe if {
-	not agent_lifecycle.allow with input as {
+test_allow_non_spiffe_identity if {
+	agent_lifecycle.allow with input as {
 		"agent_identity": "plain-agent-id",
+		"action": "start",
+	}
+}
+
+test_deny_empty_identity if {
+	not agent_lifecycle.allow with input as {
+		"agent_identity": "",
+		"action": "start",
+	}
+}
+
+test_deny_unknown_identity if {
+	not agent_lifecycle.allow with input as {
+		"agent_identity": "unknown",
 		"action": "start",
 	}
 }

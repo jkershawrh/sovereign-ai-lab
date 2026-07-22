@@ -1,0 +1,55 @@
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: tdx-reattest
+  namespace: sovereign-ai-lab
+  labels:
+    app: tdx-reattest
+    app.kubernetes.io/part-of: sovereign-ai-lab
+spec:
+  schedule: "*/5 * * * *"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      backoffLimit: 2
+      template:
+        metadata:
+          labels:
+            app: tdx-reattest
+        spec:
+          restartPolicy: OnFailure
+          containers:
+            - name: reattest
+              image: quay.io/sovereign-ai-lab/sovereign-demo-api:latest
+              command: ["bash", "/scripts/reattest-cron.sh"]
+              env:
+                - name: LEDGER_API
+                  value: "http://ledger-gateway:28099"
+                - name: LOG_DIR
+                  value: "/tmp"
+              securityContext:
+                allowPrivilegeEscalation: false
+                capabilities:
+                  drop: ["ALL"]
+              resources:
+                requests:
+                  cpu: 100m
+                  memory: 128Mi
+                limits:
+                  cpu: 250m
+                  memory: 256Mi
+              volumeMounts:
+                - name: scripts
+                  mountPath: /scripts
+                  readOnly: true
+                - name: tdx
+                  mountPath: /workspace/infra/tdx
+          volumes:
+            - name: scripts
+              configMap:
+                name: reattest-scripts
+            - name: tdx
+              emptyDir: {}

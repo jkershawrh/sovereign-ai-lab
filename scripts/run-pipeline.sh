@@ -35,71 +35,18 @@ except Exception as e:
 }
 
 echo "[1/6] Ingesting jurisdiction-local documents..."
-if [ -d "model-lifecycle/ingest/output" ] && [ "$(ls model-lifecycle/ingest/output/*.json 2>/dev/null | wc -l)" -gt 0 ]; then
-  DOCS=$(ls model-lifecycle/ingest/output/*.json 2>/dev/null | wc -l | tr -d ' ')
-  echo "  Using pre-generated output ($DOCS documents)"
-else
-  echo "  NOTE: Docling ingestion requires Docker. Pre-generate or run manually."
-  mkdir -p model-lifecycle/ingest/output
-  DOCS=3
-  for doc in model-lifecycle/ingest/sample-docs/*.md; do
-    name=$(basename "${doc%.md}")
-    python3 -c "
-import json
-from pathlib import Path
-text = Path('$doc').read_text()
-json.dump({'source': '$name', 'text': text, 'pages': 1}, open('model-lifecycle/ingest/output/${name}.json', 'w'))
-"
-  done
-fi
-HASH=$(write_ledger "pipeline.ingest.completed" "'{\"document_count\": $DOCS}'" "model-lifecycle/ingest/run.sh")
-echo "  Ledger: $HASH"
+(cd model-lifecycle/ingest && bash run.sh)
+DOCS=$(ls model-lifecycle/ingest/output/*.json 2>/dev/null | wc -l | tr -d ' ')
+echo "  Ingested $DOCS document(s)"
 
 echo "[2/6] Generating synthetic training data..."
-if [ -f "model-lifecycle/synth/output/synthetic-qa.jsonl" ]; then
-  SAMPLES=$(wc -l < model-lifecycle/synth/output/synthetic-qa.jsonl | tr -d ' ')
-  echo "  Using pre-generated output ($SAMPLES QA pairs)"
-else
-  echo "  NOTE: SDG Hub not available. Generating placeholder QA pairs."
-  mkdir -p model-lifecycle/synth/output
-  python3 -c "
-import json
-from pathlib import Path
-
-docs_dir = Path('model-lifecycle/ingest/output')
-qa_pairs = []
-for doc in docs_dir.glob('*.json'):
-    data = json.loads(doc.read_text())
-    text = data.get('text', '')
-    paragraphs = [p.strip() for p in text.split('\n\n') if len(p.strip()) > 100]
-    for i, para in enumerate(paragraphs[:5]):
-        qa_pairs.append({
-            'question': f'What does the policy say about: {para[:80]}...?',
-            'answer': para[:300],
-            'source': data.get('source', 'unknown'),
-            'synthetic': True
-        })
-
-with open('model-lifecycle/synth/output/synthetic-qa.jsonl', 'w') as f:
-    for qa in qa_pairs:
-        f.write(json.dumps(qa) + '\n')
-print(f'Generated {len(qa_pairs)} synthetic QA pairs')
-"
-  SAMPLES=$(wc -l < model-lifecycle/synth/output/synthetic-qa.jsonl | tr -d ' ')
-fi
-HASH=$(write_ledger "pipeline.synth.completed" "'{\"sample_count\": $SAMPLES}'" "model-lifecycle/synth/run.sh")
-echo "  Ledger: $HASH"
+(cd model-lifecycle/synth && bash run.sh)
+SAMPLES=$(wc -l < model-lifecycle/synth/output/synthetic-qa.jsonl | tr -d ' ')
+echo "  Generated $SAMPLES QA pairs"
 
 echo "[3/6] Fine-tuning model on sovereign data..."
-if [ -d "model-lifecycle/train/output/sovereign-granite-3b" ] && [ "$(ls model-lifecycle/train/output/sovereign-granite-3b/ 2>/dev/null | wc -l)" -gt 0 ]; then
-  echo "  Using pre-generated fine-tuned model"
-else
-  echo "  NOTE: Training Hub not available. Creating placeholder output."
-  mkdir -p model-lifecycle/train/output/sovereign-granite-3b
-  echo '{"status": "placeholder", "method": "sft", "epochs": 3, "note": "Pre-generated artifact - replace with real training output"}' > model-lifecycle/train/output/sovereign-granite-3b/training-config.json
-fi
-HASH=$(write_ledger "pipeline.train.completed" "'{\"output_dir\": \"model-lifecycle/train/output/sovereign-granite-3b\"}'" "model-lifecycle/train/run.sh")
-echo "  Ledger: $HASH"
+(cd model-lifecycle/train && bash run.sh)
+echo "  Training stage complete"
 
 echo "[4/6] Evaluating fine-tuned model..."
 if [ -f "model-lifecycle/eval/output/results.json" ]; then

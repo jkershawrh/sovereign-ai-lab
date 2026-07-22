@@ -20,7 +20,7 @@ jobs:
           python-version: "3.11"
 
       - name: Compile all Python
-        run: python -m compileall scripts experience/demo inference/semantic-router gateway/mcp-servers model-lifecycle
+        run: python -m compileall scripts experience/demo gcl/prompt-adapter gateway/mcp-servers model-lifecycle
 
       - name: Benchmark thresholds
         run: cd model-lifecycle/eval && python check-thresholds.py output/results.json

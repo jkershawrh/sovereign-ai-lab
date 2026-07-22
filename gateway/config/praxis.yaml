@@ -1,5 +1,5 @@
 # Praxis proxy configuration for Sovereign AI Lab
-# Routes inference traffic through semantic router, MCP through ContextForge
+# Routes inference traffic through GCL prompt adapter, MCP through ContextForge
 
 listeners:
   - name: sovereign-gateway
@@ -13,18 +13,18 @@ filter_chains:
       - filter: router
         routes:
           - path_prefix: /v1/
-            cluster: semantic-router
+            cluster: prompt-adapter
           - path_prefix: /v3/
-            cluster: semantic-router
+            cluster: prompt-adapter
           - path_prefix: /mcp/
             cluster: contextforge
           - path_prefix: /a2a/
             cluster: contextforge
       - filter: load_balancer
         clusters:
-          - name: semantic-router
+          - name: prompt-adapter
             endpoints:
-              - address: semantic-router:8001
+              - address: prompt-adapter:8001
             read_timeout_ms: 120000
           - name: contextforge
             endpoints:

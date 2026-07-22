@@ -11,8 +11,11 @@ allow if {
 	valid_action
 }
 
+# Production: require SPIFFE identity (startswith "spiffe://")
+# Demo: accept any non-empty identity until SPIFFE provisioning is deployed
 valid_identity if {
-	startswith(input.agent_identity, "spiffe://")
+	input.agent_identity != ""
+	input.agent_identity != "unknown"
 }
 
 valid_action if {
@@ -21,7 +24,7 @@ valid_action if {
 
 deny_reasons contains msg if {
 	not valid_identity
-	msg := "agent must have a valid SPIFFE identity"
+	msg := "agent identity required -- anonymous access denied"
 }
 
 deny_reasons contains msg if {

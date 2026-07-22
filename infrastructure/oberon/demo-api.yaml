@@ -52,7 +52,7 @@ spec:
             - name: OPA_ENDPOINT
               value: "http://opa:8181"
             - name: ROUTER_ENDPOINT
-              value: "http://semantic-router:8001"
+              value: "http://prompt-adapter:8001"
             - name: OVMS_ENDPOINT
               value: "http://ovms-sovereign-granite:8080"
             - name: MCP_ENDPOINT

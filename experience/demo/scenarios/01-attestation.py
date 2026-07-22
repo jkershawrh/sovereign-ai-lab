@@ -27,6 +27,16 @@ latest = attest_entries[-1]
 print(f"\nLedger entry: {latest['entry_hash']}")
 print(f"Agent:        {latest['agent_id']}")
 
+# Verify periodic re-attestation: multiple attestation entries prove
+# the platform continuously re-attests, not just once at boot.
+if len(attest_entries) >= 2:
+    timestamps = [e.get("created_at", "unknown") for e in attest_entries[-2:]]
+    print(f"\nRe-attestation proof: {len(attest_entries)} attestation entries found")
+    print(f"  Previous: {timestamps[0]}")
+    print(f"  Latest:   {timestamps[1]}")
+else:
+    print(f"\nNote: {len(attest_entries)} attestation entry found (re-attestation not yet cycled)")
+
 chain = httpx.get(f"{API}/api/ledger/verify", timeout=10).json()
 print(f"\nChain valid:  {chain['all_valid']}")
 print("\nScenario 01 PASSED")

@@ -2,23 +2,24 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: semantic-router
+  name: prompt-adapter
   namespace: sovereign-ai-lab
   labels:
-    app: semantic-router
+    app: prompt-adapter
+    app.kubernetes.io/part-of: sovereign-ai-lab
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: semantic-router
+      app: prompt-adapter
   template:
     metadata:
       labels:
-        app: semantic-router
+        app: prompt-adapter
     spec:
       containers:
-        - name: router
-          image: quay.io/sovereign-ai-lab/sovereign-semantic-router:latest
+        - name: adapter
+          image: quay.io/sovereign-ai-lab/sovereign-prompt-adapter:latest
           securityContext:
             allowPrivilegeEscalation: false
             capabilities:
@@ -34,6 +35,14 @@ spec:
               value: "http://ledger-gateway:28099/api/entries"
             - name: SR_PORT
               value: "8001"
+            - name: GCL_OPA_ENDPOINT
+              value: "http://opa:8181/v1/data/sovereign/data_residency/allow"
+            - name: GCL_FORCE_DETERMINISTIC
+              value: "true"
+            - name: GCL_RUNTIME_MODE
+              value: "standalone-test"
+            - name: GCL_LEDGER_URL
+              value: ""
           readinessProbe:
             httpGet:
               path: /health
@@ -51,11 +60,11 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: semantic-router
+  name: prompt-adapter
   namespace: sovereign-ai-lab
 spec:
   selector:
-    app: semantic-router
+    app: prompt-adapter
   ports:
     - port: 8001
       targetPort: 8001

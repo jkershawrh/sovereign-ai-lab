@@ -3,12 +3,15 @@ Sovereign AI Lab — Demo API
 FastAPI backend serving real data from all infrastructure components.
 """
 import json
+import logging
 import os
 import subprocess
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 import httpx
+
+logger = logging.getLogger(__name__)
 
 app = FastAPI(title="Sovereign AI Lab Demo API", version="1.0.0")
 
@@ -21,7 +24,7 @@ app.add_middleware(
 
 LEDGER_GATEWAY = os.environ.get("LEDGER_GATEWAY", "http://ledger-gateway:28099")
 OPA = os.environ.get("OPA_ENDPOINT", "http://opa:8181")
-ROUTER = os.environ.get("ROUTER_ENDPOINT", "http://semantic-router:8001")
+ROUTER = os.environ.get("ROUTER_ENDPOINT", "http://prompt-adapter:8001")
 OVMS = os.environ.get("OVMS_ENDPOINT", "http://ovms-sovereign-granite:8080")
 MCP = os.environ.get("MCP_ENDPOINT", "http://sovereign-data-mcp:8090")
 WORKSPACE = os.environ.get("WORKSPACE", "/workspace")
@@ -149,7 +152,24 @@ async def get_policies():
 async def evaluate_policy(body: dict):
     policy = body.get("policy", "sovereign/data_residency/allow")
     input_data = body.get("input", {})
-    return await _post(f"{OPA}/v1/data/{policy}", {"input": input_data})
+    opa_result = await _post(f"{OPA}/v1/data/{policy}", {"input": input_data})
+
+    try:
+        await _post(f"{LEDGER_GATEWAY}/api/entries", {
+            "entry_type": "opa.policy.evaluated",
+            "agent_id": "demo-api/opa-bridge",
+            "content": json.dumps({
+                "policy": policy,
+                "input": input_data,
+                "result": opa_result,
+            }),
+            "content_type": "application/json",
+            "source_id": "sovereign-ai-lab",
+        })
+    except Exception:
+        logger.warning("OPA decision ledger write failed")
+
+    return opa_result
 
 
 # ─── Ledger ──────────────────────────────────────────────────────────────────

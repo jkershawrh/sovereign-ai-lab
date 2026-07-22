@@ -7,3 +7,6 @@
 [submodule "gateway/contextforge"]
 	path = gateway/contextforge
 	url = https://github.com/IBM/mcp-context-forge
+[submodule "gcl/governed-cognitive-loop"]
+	path = gcl/governed-cognitive-loop
+	url = https://github.com/jkershawrh/governed-cognitive-loop
