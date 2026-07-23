@@ -147,6 +147,18 @@ If the kernel/QEMU mismatch is confirmed, the options are:
 
 3. **Use peer pods instead of local VM:** Set `enablePeerPods: true` in KataConfig. This launches confidential VMs via a cloud API adapter instead of local QEMU. Requires additional configuration but avoids the local QEMU compatibility issue.
 
+## Manual QEMU test results (2026-07-23)
+
+Manual QEMU TDX launch on the Oberon node confirms:
+- **QEMU launches the TDX VM successfully** (exit 0, process stays alive 15+ seconds)
+- **TDVF firmware boots** — prints "Loaded initrd from LINUX_EFI_INITRD_MEDIA_GUID", "Measured initrd data into PCR 9"
+- **The VM does NOT crash** — it stays running in daemonized mode
+- **Boot timeout increase had no effect** — `boot_timeout` is not a valid kata drop-in key
+
+**Revised diagnosis:** The QEMU/TDX VM launch is working. The failure is inside the guest — the kata agent in the `kata-cc.initrd` is not starting or not connecting via vsock. This is an initrd/agent compatibility issue, not a QEMU or firmware issue.
+
+**Next step for admin:** Check the kata-cc guest image version matches the host kata-containers version. The initrd at `/usr/share/kata-containers/osbuilder-images/6.12.0-124.21.1.el10_1.x86_64/kata-cc.initrd` (47MB) contains the kata agent — verify it has vsock support compiled in and is compatible with the host kata shim.
+
 ## Current mitigation
 
 The sovereign AI lab runs without `runtimeClassName: kata-cc`. The attestation script (`infra/tdx/attest.sh`) detects the TDX hardware at the host level and reports `attestation_level: tdx-host-confirmed` with the CPU model, TDX module version, and TPM PCR values. When kata-cc becomes operational, the same script will automatically detect `/dev/tdx_guest` inside the VM and upgrade to `attestation_level: td-enclave`.
