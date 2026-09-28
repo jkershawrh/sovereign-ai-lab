@@ -84,7 +84,7 @@ jobs:
 
       - name: Check shell scripts
         run: |
-          bash -n infrastructure/dev-cluster-1/deploy.sh
+          bash -n infrastructure/oberon/deploy.sh
           bash -n scripts/run-pipeline.sh
           bash -n scripts/preflight-infra.sh
           bash -n scripts/reset-infra.sh

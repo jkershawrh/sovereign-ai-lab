@@ -81,7 +81,7 @@ scenarios:
 # ─── dev-cluster-1 (DEV) ───────────────────────────────────────────────────────────
 
 deploy-cluster:
-	@bash infrastructure/dev-cluster-1/deploy.sh
+	@bash infrastructure/oberon/deploy.sh
 
 smoke-test:
 	@python3 scripts/smoke-test.py
