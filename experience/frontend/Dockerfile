@@ -1,11 +1,16 @@
-FROM node:20-alpine AS build
+ARG NODE_IMAGE=docker.io/library/node@sha256:afdf98210b07b586eb71fa22ba2e432e058e4cd1304d31ed60888755b8c865fb
+ARG NGINX_IMAGE=docker.io/library/nginx@sha256:0530961ff0592b58c10f767535cc0abdfccf9e389ff7cc90f87320c1bc7e8506
+FROM ${NODE_IMAGE} AS build
 WORKDIR /app
 COPY package*.json ./
 RUN npm ci
 COPY . .
 RUN npm run build
 
-FROM nginx:alpine
+FROM ${NGINX_IMAGE}
+ARG SOURCE_REVISION
+LABEL org.opencontainers.image.title="Sovereign AI workload frontend" \
+      org.opencontainers.image.revision="${SOURCE_REVISION}"
 RUN mkdir -p /var/cache/nginx/client_temp /var/cache/nginx/proxy_temp \
              /var/cache/nginx/fastcgi_temp /var/cache/nginx/uwsgi_temp \
              /var/cache/nginx/scgi_temp /var/run && \

@@ -1,0 +1,103 @@
+name: Sovereign AI immutable workload components
+
+on:
+  workflow_dispatch:
+    inputs:
+      expected_sha: {description: Exact 40-character source revision to build, required: true, type: string}
+      publish: {description: Publish sign and attest after all gates pass, required: true, default: false, type: boolean}
+
+permissions: {contents: read, packages: write, id-token: write, attestations: write}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - {name: demo-api, context: experience/demo, file: experience/demo/Dockerfile}
+          - {name: prompt-adapter, context: inference/semantic-router, file: inference/semantic-router/Dockerfile}
+          - {name: workload-frontend, context: experience/frontend, file: experience/frontend/Dockerfile}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with: {ref: "${{ inputs.expected_sha }}", submodules: false}
+      - name: Refuse revision drift
+        run: |
+          set -euo pipefail
+          test "${{ github.sha }}" = "${{ inputs.expected_sha }}"
+          test "$(git rev-parse HEAD)" = "${{ inputs.expected_sha }}"
+          test -z "$(git status --porcelain)"
+      - uses: docker/setup-qemu-action@c7c53464625b32c7a7e944ae62b3e17d2b600130
+      - uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f
+      - name: Build exact Linux AMD64 candidate
+        uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8
+        with:
+          context: ${{ matrix.context }}
+          file: ${{ matrix.file }}
+          platforms: linux/amd64
+          load: true
+          push: false
+          no-cache: true
+          tags: ghcr.io/${{ github.repository_owner }}/sovereign-ai-${{ matrix.name }}:git-${{ inputs.expected_sha }}
+          build-args: SOURCE_REVISION=${{ inputs.expected_sha }}
+          labels: |
+            org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
+            org.opencontainers.image.revision=${{ inputs.expected_sha }}
+      - name: Inventory vulnerabilities
+        uses: anchore/scan-action@1638637db639e0ade3258b51db49a9a137574c3e
+        with: {image: "ghcr.io/${{ github.repository_owner }}/sovereign-ai-${{ matrix.name }}:git-${{ inputs.expected_sha }}", fail-build: false, severity-cutoff: high, output-format: json, output-file: vulnerabilities.json}
+      - name: Block fixable high and critical vulnerabilities
+        uses: anchore/scan-action@1638637db639e0ade3258b51db49a9a137574c3e
+        with: {image: "ghcr.io/${{ github.repository_owner }}/sovereign-ai-${{ matrix.name }}:git-${{ inputs.expected_sha }}", fail-build: true, severity-cutoff: high, only-fixed: true, output-format: json, output-file: vulnerabilities-fixable.json}
+      - name: Generate SPDX SBOM
+        uses: anchore/sbom-action@e22c389904149dbc22b58101806040fa8d37a610
+        with: {image: "ghcr.io/${{ github.repository_owner }}/sovereign-ai-${{ matrix.name }}:git-${{ inputs.expected_sha }}", format: spdx-json, output-file: sbom.spdx.json, upload-artifact: false}
+      - name: Log in to GHCR
+        if: ${{ inputs.publish }}
+        uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9
+        with: {registry: ghcr.io, username: "${{ github.actor }}", password: "${{ secrets.GITHUB_TOKEN }}"}
+      - name: Publish exact candidate
+        if: ${{ inputs.publish }}
+        id: publish
+        run: |
+          set -euo pipefail
+          image="ghcr.io/${{ github.repository_owner }}/sovereign-ai-${{ matrix.name }}:git-${{ inputs.expected_sha }}"
+          docker push "$image"
+          digest_ref="$(docker inspect --format='{{index .RepoDigests 0}}' "$image")"
+          test -n "$digest_ref"
+          printf 'digest_ref=%s\n' "$digest_ref" >> "$GITHUB_OUTPUT"
+          printf '%s\n' "$digest_ref" > image.txt
+      - name: Install Cosign
+        if: ${{ inputs.publish }}
+        uses: sigstore/cosign-installer@398d4b0eeef1380460a10c8013a76f728fb906ac
+      - name: Sign and attest exact digest
+        if: ${{ inputs.publish }}
+        env: {DIGEST_REF: "${{ steps.publish.outputs.digest_ref }}"}
+        run: |
+          set -euo pipefail
+          jq -n --arg repository "${{ github.server_url }}/${{ github.repository }}" --arg revision "${{ inputs.expected_sha }}" --arg image "$DIGEST_REF" --arg component "${{ matrix.name }}" '{source_repository:$repository,source_revision:$revision,subject_image:$image,component:$component,build_platform:"linux/amd64"}' > provenance.json
+          cosign sign --yes "$DIGEST_REF"
+          cosign attest --yes --type spdxjson --predicate sbom.spdx.json "$DIGEST_REF"
+          cosign attest --yes --type custom --predicate provenance.json "$DIGEST_REF"
+      - name: Verify signer and attestations
+        if: ${{ inputs.publish }}
+        env: {DIGEST_REF: "${{ steps.publish.outputs.digest_ref }}"}
+        run: |
+          set -euo pipefail
+          identity="${{ github.server_url }}/${{ github.repository }}/.github/workflows/release-components.yml@refs/heads/main"
+          issuer="https://token.actions.githubusercontent.com"
+          cosign verify --certificate-identity="$identity" --certificate-oidc-issuer="$issuer" "$DIGEST_REF" >/dev/null
+          cosign verify-attestation --type spdxjson --certificate-identity="$identity" --certificate-oidc-issuer="$issuer" "$DIGEST_REF" >/dev/null
+          cosign verify-attestation --type custom --certificate-identity="$identity" --certificate-oidc-issuer="$issuer" "$DIGEST_REF" >/dev/null
+      - name: Retain component evidence
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: sovereign-ai-${{ matrix.name }}-${{ inputs.expected_sha }}
+          retention-days: 90
+          path: |
+            image.txt
+            provenance.json
+            vulnerabilities.json
+            vulnerabilities-fixable.json
+            sbom.spdx.json
