@@ -1,5 +1,5 @@
 ARG NODE_IMAGE=docker.io/library/node@sha256:afdf98210b07b586eb71fa22ba2e432e058e4cd1304d31ed60888755b8c865fb
-ARG NGINX_IMAGE=docker.io/library/nginx@sha256:0530961ff0592b58c10f767535cc0abdfccf9e389ff7cc90f87320c1bc7e8506
+ARG NGINX_IMAGE=docker.io/library/nginx@sha256:3bcf852aed06467cf075c6105892e4d5a6ebbbafa0ce22d35062db9e90ddef4c
 FROM ${NODE_IMAGE} AS build
 WORKDIR /app
 COPY package*.json ./
